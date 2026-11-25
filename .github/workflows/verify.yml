@@ -6,13 +6,29 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        include:
+          # ubuntu-latest ya no publica binarios de 3.9; el piso se prueba en la
+          # imagen que todavia los tiene.
+          - python-version: "3.9"
+            os: ubuntu-22.04
+          - python-version: "3.10"
+            os: ubuntu-latest
+          - python-version: "3.11"
+            os: ubuntu-latest
+          - python-version: "3.12"
+            os: ubuntu-latest
+          - python-version: "3.13"
+            os: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -46,12 +62,25 @@ jobs:
           objetivo=$?
           echo "pre_fix=$pre post_fix=$post objetivo=$objetivo"
           test "$pre" = 1 && test "$post" = 1 && test "$objetivo" = 0
-      - name: Upload SARIF
+      # Una categoria por corrida: el Action rechaza varios runs bajo la misma.
+      - name: Upload SARIF (pre_fix)
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
-          sarif_file: out
-          category: fsm-ledger-guard
+          sarif_file: out/studio_city_pre_fix.sarif
+          category: fsm-ledger-guard/pre_fix
+      - name: Upload SARIF (post_fix)
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: out/studio_city_post_fix.sarif
+          category: fsm-ledger-guard/post_fix
+      - name: Upload SARIF (objetivo)
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: out/studio_city_objetivo.sarif
+          category: fsm-ledger-guard/objetivo
       - uses: actions/upload-artifact@v4
         if: always()
         with:
