@@ -1,5 +1,8 @@
 # fsm-ledger-guard
 
+[![verify](https://github.com/alexisromtz-lab/fsm-ledger-guard/actions/workflows/verify.yml/badge.svg)](https://github.com/alexisromtz-lab/fsm-ledger-guard/actions/workflows/verify.yml)
+[![Code Scanning](https://img.shields.io/badge/Code%20Scanning-11%20alertas%20en%20vivo-blue)](https://github.com/alexisromtz-lab/fsm-ledger-guard/security/code-scanning)
+
 Auditoría **algebraica** de máquinas de estados financieras. Certifica, antes de
 desplegar, que un grafo de pagos, reservas o pedidos **no puede crear ni perder
 unidades**: ni ciclos que devuelven dinero, ni recursos que entran y nunca salen,
@@ -192,11 +195,20 @@ verificador real, no con una copia.
 ## 7. GitHub Code Scanning
 
 ```yaml
-- run: pip install -e . && fsm-ledger-guard scan flujo.json --sarif out.sarif || true
-- uses: github/codeql-action/upload-sarif@v3
-  with:
-    sarif_file: out.sarif
+permissions:
+  contents: read
+  security-events: write
+steps:
+  - run: pip install -e . && fsm-ledger-guard scan flujo.json --sarif out.sarif || true
+  - uses: github/codeql-action/upload-sarif@v4
+    with:
+      sarif_file: out.sarif
 ```
+
+Una **categoría por análisis**: el Action rechaza varios `run` bajo la misma
+categoría (`does not support uploading multiple SARIF runs with the same
+category`, medido en la corrida 45724438171). Sin `security-events: write` el
+SARIF se valida y se sube como artefacto, pero no llega a la pestaña Security.
 
 Cada resultado lleva `ruleId` (`FSM001`…), `level`, la línea del fixture,
 `partialFingerprints` estable entre corridas y, en `properties`, el
@@ -204,6 +216,13 @@ Cada resultado lleva `ruleId` (`FSM001`…), `level`, la línea del fixture,
 esquema oficial `sarif-schema-2.1.0.json` con `jsonschema` (Draft-07): cero
 errores. `.github/workflows/verify.yml` audita los tres fixtures en cada push y
 exige `1 / 1 / 0`.
+
+Medición viva, 25-Nov-2026 @ `486c4ee`: la pestaña Security de este repositorio
+publica **11 alertas** — `FSM001`×2 (el ciclo de dos aristas), `FSM006`×2,
+`FSM008`×4 (idempotencia), `FSM009`×2 (unidades) y `FSM011`×1 (cupo por encima
+de su máximo). Son las 8 de `pre_fix` más las 3 de `post_fix`: los dos actos se
+suben con categoría distinta a propósito, porque lo que se demuestra es el
+delta entre ambos, no un conteo.
 
 Como hook de pre-commit, el instrumento audita los documentos que terminen en
 `.fsm.json`:
