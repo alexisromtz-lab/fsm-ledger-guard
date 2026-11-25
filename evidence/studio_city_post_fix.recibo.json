@@ -1,0 +1,38 @@
+{
+  "schema": "conservation/1",
+  "area": "fsm:studio-city/reservas",
+  "instrumento": "fsm-ledger-guard",
+  "dominio": 12,
+  "unidad": "transiciones",
+  "cubetas": {
+    "limpias": 10,
+    "en_ciclo_fuga": 0,
+    "inalcanzable": 0,
+    "sin_guarda": 2,
+    "unidad_inconsistente": 0
+  },
+  "version": "0.1.0",
+  "digests": {
+    "entrada": "9ccdd104b035373f08ae5f640a3493c4a086001b5f0f8deff30f105b675fb2ed",
+    "salida": "e767be992757bd692019f8c6f81f7b40b314ab716bbad12f22b94c0dc2bd3078"
+  },
+  "declarado": {
+    "conserva": true,
+    "rc": 0
+  },
+  "auditoria": {
+    "rc": 1,
+    "hallazgos": 3,
+    "reglas": [
+      "FSM006",
+      "FSM008"
+    ],
+    "medido": true
+  },
+  "procedencia": {
+    "repo": "alexisromtz-lab/estudios-worker",
+    "commit": "e67b9d5a",
+    "medido": true,
+    "nota": "Estado real de la maquina de pagos tras el parche de origen (ORIGENES_VALIDOS con compare-and-swap devolviendo 409) y de unidades (Math.round(montoMxn*100) en crearPreferencia). P9 ya no existe: 'pendiente' no es alcanzable desde 'pagada'. El ciclo con fuga desaparece y el recurso retenido de F1 queda visible como el hallazgo dominante."
+  }
+}

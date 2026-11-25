@@ -1,0 +1,35 @@
+{
+  "schema": "conservation/1",
+  "area": "fsm:studio-city/reservas",
+  "instrumento": "fsm-ledger-guard",
+  "dominio": 12,
+  "unidad": "transiciones",
+  "cubetas": {
+    "limpias": 12,
+    "en_ciclo_fuga": 0,
+    "inalcanzable": 0,
+    "sin_guarda": 0,
+    "unidad_inconsistente": 0
+  },
+  "version": "0.1.0",
+  "digests": {
+    "entrada": "186a2ac766aebcf9ebab8520814d77087f0c8ae06fb347d5a25675b262d2c5c1",
+    "salida": "25c9ea38e55d7d42a7f8aa700fd5d0c52e3a46888f9c349acf23381bfb3c602f"
+  },
+  "declarado": {
+    "conserva": true,
+    "rc": 0
+  },
+  "auditoria": {
+    "rc": 0,
+    "hallazgos": 0,
+    "reglas": [],
+    "medido": false
+  },
+  "procedencia": {
+    "repo": "alexisromtz-lab/estudios-worker",
+    "commit": "PROYECTADO",
+    "medido": false,
+    "nota": "No es el estado de ningun commit: es la proyeccion que cierra F1 y F7 sobre e67b9d5a. Anade el estado terminal 'reembolsado' con su arista de salida de escrow, y pone clave de idempotencia en los dos bordes de dinero. Se publica declarado como no medido: con --exigir-medido el resultado correcto es RC 2, no RC 0."
+  }
+}

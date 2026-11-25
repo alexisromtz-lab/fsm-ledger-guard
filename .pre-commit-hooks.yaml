@@ -1,0 +1,10 @@
+- id: fsm-ledger-guard
+  name: fsm-ledger-guard
+  description: Audita la conservación de los grafos *.fsm.json declarados
+  entry: fsm-ledger-guard scan
+  language: python
+  language_version: python3
+  files: \.fsm\.json$
+  pass_filenames: true
+  args: ["--quiet"]
+  require_serial: true

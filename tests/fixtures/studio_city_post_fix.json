@@ -1,0 +1,178 @@
+{
+  "schema": "fsm-ledger/1",
+  "dominio": "studio-city/reservas",
+  "inicial": "pendiente",
+  "procedencia": {
+    "repo": "alexisromtz-lab/estudios-worker",
+    "commit": "e67b9d5a",
+    "medido": true,
+    "nota": "Estado real de la maquina de pagos tras el parche de origen (ORIGENES_VALIDOS con compare-and-swap devolviendo 409) y de unidades (Math.round(montoMxn*100) en crearPreferencia). P9 ya no existe: 'pendiente' no es alcanzable desde 'pagada'. El ciclo con fuga desaparece y el recurso retenido de F1 queda visible como el hallazgo dominante."
+  },
+  "recursos": {
+    "escrow": {
+      "unidad": "centavos",
+      "minimo": 0,
+      "maximo": 35000,
+      "saldo_inicial": 0,
+      "acumulativa": false
+    },
+    "cupo": {
+      "unidad": "lugares",
+      "minimo": 0,
+      "maximo": 1,
+      "saldo_inicial": 1,
+      "acumulativa": false
+    }
+  },
+  "estados": [
+    {
+      "nombre": "pendiente",
+      "terminal": false
+    },
+    {
+      "nombre": "confirmada",
+      "terminal": false
+    },
+    {
+      "nombre": "pagada",
+      "terminal": false
+    },
+    {
+      "nombre": "atendida",
+      "terminal": true
+    },
+    {
+      "nombre": "cancelada",
+      "terminal": true
+    }
+  ],
+  "transiciones": [
+    {
+      "id": "P0",
+      "de": "pendiente",
+      "evento": "confirmar",
+      "a": "confirmada",
+      "delta": {},
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    },
+    {
+      "id": "P3",
+      "de": "pendiente",
+      "evento": "pagar",
+      "a": "pagada",
+      "delta": {
+        "escrow": 35000
+      },
+      "atomico": true,
+      "idem_key": null,
+      "nota": "crearPreferencia ya normaliza a centavos enteros, pero el webhook que confirma el pago sigue sin clave de idempotencia (F7)."
+    },
+    {
+      "id": "P4",
+      "de": "confirmada",
+      "evento": "pagar",
+      "a": "pagada",
+      "delta": {
+        "escrow": 35000
+      },
+      "atomico": true,
+      "idem_key": null,
+      "nota": "Mismo borde desde el otro origen valido: 35000 centavos, sin idem_key (F7)."
+    },
+    {
+      "id": "P1",
+      "de": "pendiente",
+      "evento": "cancelar",
+      "a": "cancelada",
+      "delta": {
+        "cupo": -1
+      },
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    },
+    {
+      "id": "P2",
+      "de": "confirmada",
+      "evento": "cancelar",
+      "a": "cancelada",
+      "delta": {
+        "cupo": -1
+      },
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    },
+    {
+      "id": "P8",
+      "de": "pagada",
+      "evento": "cancelar",
+      "a": "cancelada",
+      "delta": {
+        "cupo": -1
+      },
+      "atomico": true,
+      "idem_key": "reserva_id+estado",
+      "nota": "F1 sigue abierto: cancelar una reserva pagada libera el cupo y retiene el dinero. El 409 de ORIGENES_VALIDOS impide ademas este camino desde 'pagada'; el grafo lo conserva para que la retencion sea visible en vez de invisible."
+    },
+    {
+      "id": "P5",
+      "de": "pendiente",
+      "evento": "atender",
+      "a": "atendida",
+      "delta": {
+        "cupo": -1
+      },
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    },
+    {
+      "id": "P6",
+      "de": "confirmada",
+      "evento": "atender",
+      "a": "atendida",
+      "delta": {
+        "cupo": -1
+      },
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    },
+    {
+      "id": "P7",
+      "de": "pagada",
+      "evento": "atender",
+      "a": "atendida",
+      "delta": {
+        "cupo": -1
+      },
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    },
+    {
+      "id": "N1",
+      "de": "pendiente",
+      "evento": "mismo_estado",
+      "a": "pendiente",
+      "delta": {},
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    },
+    {
+      "id": "N2",
+      "de": "confirmada",
+      "evento": "mismo_estado",
+      "a": "confirmada",
+      "delta": {},
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    },
+    {
+      "id": "N3",
+      "de": "atendida",
+      "evento": "mismo_estado",
+      "a": "atendida",
+      "delta": {},
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    }
+  ]
+}

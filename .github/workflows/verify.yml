@@ -1,0 +1,59 @@
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install
+        run: python -m pip install --upgrade pip && python -m pip install -e .
+      - name: Tests
+        run: python -m unittest discover -s tests -t tests -v
+
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: python -m pip install --upgrade pip && python -m pip install -e .
+      - name: Audit the public fixtures
+        run: |
+          set +e
+          fsm-ledger-guard scan tests/fixtures/studio_city_pre_fix.json \
+            --sarif out/studio_city_pre_fix.sarif --recibo out/studio_city_pre_fix.recibo.json
+          pre=$?
+          fsm-ledger-guard scan tests/fixtures/studio_city_post_fix.json \
+            --sarif out/studio_city_post_fix.sarif --recibo out/studio_city_post_fix.recibo.json
+          post=$?
+          fsm-ledger-guard scan tests/fixtures/studio_city_objetivo.json \
+            --sarif out/studio_city_objetivo.sarif --recibo out/studio_city_objetivo.recibo.json
+          objetivo=$?
+          echo "pre_fix=$pre post_fix=$post objetivo=$objetivo"
+          test "$pre" = 1 && test "$post" = 1 && test "$objetivo" = 0
+      - name: Upload SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: out
+          category: fsm-ledger-guard
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: recibos
+          path: out/

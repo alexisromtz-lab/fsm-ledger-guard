@@ -1,0 +1,196 @@
+{
+  "schema": "fsm-ledger/1",
+  "dominio": "studio-city/reservas",
+  "inicial": "pendiente",
+  "procedencia": {
+    "repo": "alexisromtz-lab/estudios-worker",
+    "commit": "95ea4a71",
+    "medido": true,
+    "nota": "Modelo de las escrituras de estado y dinero de src/lib/reservas.js (setReservaEstado, ORIGENES_VALIDOS ausente) y src/pagos.js (crearPreferencia). Los lazos N1-N3 son escrituras no-op que el codigo permite: no mueven ningun recurso y no deben disparar ningun hallazgo. El recurso escrow modela la columna pagos.monto, declarada en centavos."
+  },
+  "recursos": {
+    "escrow": {
+      "unidad": "centavos",
+      "minimo": 0,
+      "maximo": 35000,
+      "saldo_inicial": 0,
+      "acumulativa": false
+    },
+    "cupo": {
+      "unidad": "lugares",
+      "minimo": 0,
+      "maximo": 1,
+      "saldo_inicial": 1,
+      "acumulativa": false
+    }
+  },
+  "estados": [
+    {
+      "nombre": "pendiente",
+      "terminal": false
+    },
+    {
+      "nombre": "confirmada",
+      "terminal": false
+    },
+    {
+      "nombre": "pagada",
+      "terminal": false
+    },
+    {
+      "nombre": "atendida",
+      "terminal": true
+    },
+    {
+      "nombre": "cancelada",
+      "terminal": true
+    }
+  ],
+  "transiciones": [
+    {
+      "id": "P0",
+      "de": "pendiente",
+      "evento": "confirmar",
+      "a": "confirmada",
+      "delta": {},
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    },
+    {
+      "id": "P3",
+      "de": "pendiente",
+      "evento": "pagar",
+      "a": "pagada",
+      "delta": {
+        "escrow": {
+          "valor": 350,
+          "unidad": "pesos"
+        }
+      },
+      "atomico": true,
+      "idem_key": null,
+      "nota": "pagos.js:133 bindea montoMxn (pesos) en una columna declarada en centavos: 350.00 MXN se guarda como 350 centavos. El INSERT INTO pagos no lleva WHERE NOT EXISTS."
+    },
+    {
+      "id": "P4",
+      "de": "confirmada",
+      "evento": "pagar",
+      "a": "pagada",
+      "delta": {
+        "escrow": {
+          "valor": 350,
+          "unidad": "pesos"
+        }
+      },
+      "atomico": true,
+      "idem_key": null,
+      "nota": "Segundo escritor del mismo defecto: crearPreferencia recibe el monto ya en pesos. Sin clave de idempotencia en el webhook de pago."
+    },
+    {
+      "id": "P9",
+      "de": "pagada",
+      "evento": "reabrir",
+      "a": "pendiente",
+      "delta": {
+        "cupo": 1
+      },
+      "atomico": true,
+      "idem_key": "reserva_id+estado",
+      "nota": "F2: setReservaEstado no filtra el estado de origen, asi que 'pendiente' se puede escribir sobre una reserva pagada. Con P3 forma el ciclo pagada -> pendiente -> pagada, cuyo delta neto sobre escrow es +350 centavos por vuelta."
+    },
+    {
+      "id": "P1",
+      "de": "pendiente",
+      "evento": "cancelar",
+      "a": "cancelada",
+      "delta": {
+        "cupo": -1
+      },
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    },
+    {
+      "id": "P2",
+      "de": "confirmada",
+      "evento": "cancelar",
+      "a": "cancelada",
+      "delta": {
+        "cupo": -1
+      },
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    },
+    {
+      "id": "P8",
+      "de": "pagada",
+      "evento": "cancelar",
+      "a": "cancelada",
+      "delta": {
+        "cupo": -1
+      },
+      "atomico": true,
+      "idem_key": "reserva_id+estado",
+      "nota": "F1: cancela una reserva pagada liberando el cupo y sin devolver el dinero. No hay transicion que reste de escrow."
+    },
+    {
+      "id": "P5",
+      "de": "pendiente",
+      "evento": "atender",
+      "a": "atendida",
+      "delta": {
+        "cupo": -1
+      },
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    },
+    {
+      "id": "P6",
+      "de": "confirmada",
+      "evento": "atender",
+      "a": "atendida",
+      "delta": {
+        "cupo": -1
+      },
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    },
+    {
+      "id": "P7",
+      "de": "pagada",
+      "evento": "atender",
+      "a": "atendida",
+      "delta": {
+        "cupo": -1
+      },
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    },
+    {
+      "id": "N1",
+      "de": "pendiente",
+      "evento": "mismo_estado",
+      "a": "pendiente",
+      "delta": {},
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    },
+    {
+      "id": "N2",
+      "de": "confirmada",
+      "evento": "mismo_estado",
+      "a": "confirmada",
+      "delta": {},
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    },
+    {
+      "id": "N3",
+      "de": "atendida",
+      "evento": "mismo_estado",
+      "a": "atendida",
+      "delta": {},
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    }
+  ]
+}

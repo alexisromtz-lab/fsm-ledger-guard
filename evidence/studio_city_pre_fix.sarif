@@ -1,0 +1,517 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "fsm-ledger-guard",
+          "version": "0.1.0",
+          "informationUri": "https://github.com/alexisromtz-lab/fsm-ledger-guard",
+          "rules": [
+            {
+              "id": "FSM001",
+              "name": "CICLO_CON_FUGA",
+              "shortDescription": {
+                "text": "Ciclo con delta neto distinto de cero"
+              },
+              "fullDescription": {
+                "text": "No existe potencial de saldo para el recurso: el ciclo puede crear o destruir unidades sin límite (pago duplicado, devolución duplicada)."
+              },
+              "help": {
+                "text": "No existe potencial de saldo para el recurso: el ciclo puede crear o destruir unidades sin límite (pago duplicado, devolución duplicada)."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "fsm",
+                  "financial-conservation",
+                  "money"
+                ],
+                "precision": "very-high"
+              }
+            },
+            {
+              "id": "FSM006",
+              "name": "RECURSO_RETENIDO_SIN_SALIDA",
+              "shortDescription": {
+                "text": "Recurso que entra y no tiene arista que lo saque"
+              },
+              "fullDescription": {
+                "text": "Dinero o cupo retenido sin reembolso ni liberación: hay una asimetría entre lo que se toma y lo que se devuelve."
+              },
+              "help": {
+                "text": "Dinero o cupo retenido sin reembolso ni liberación: hay una asimetría entre lo que se toma y lo que se devuelve."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "fsm",
+                  "financial-conservation",
+                  "money"
+                ],
+                "precision": "very-high"
+              }
+            },
+            {
+              "id": "FSM008",
+              "name": "MOVIMIENTO_SIN_IDEM",
+              "shortDescription": {
+                "text": "Transición que mueve un recurso sin clave de idempotencia"
+              },
+              "fullDescription": {
+                "text": "Sin clave de idempotencia, el mismo evento aplicado dos veces mueve el recurso dos veces."
+              },
+              "help": {
+                "text": "Sin clave de idempotencia, el mismo evento aplicado dos veces mueve el recurso dos veces."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "fsm",
+                  "financial-conservation",
+                  "money"
+                ],
+                "precision": "very-high"
+              }
+            },
+            {
+              "id": "FSM009",
+              "name": "UNIDAD_INCONSISTENTE",
+              "shortDescription": {
+                "text": "Delta declarado en una unidad distinta a la del recurso"
+              },
+              "fullDescription": {
+                "text": "Un mismo recurso no admite dos unidades: pesos y centavos en la misma columna desalinean todos los lectores por un factor de 100."
+              },
+              "help": {
+                "text": "Un mismo recurso no admite dos unidades: pesos y centavos en la misma columna desalinean todos los lectores por un factor de 100."
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "tags": [
+                  "fsm",
+                  "financial-conservation",
+                  "money"
+                ],
+                "precision": "very-high"
+              }
+            },
+            {
+              "id": "FSM011",
+              "name": "COTA_EXCEDIDA",
+              "shortDescription": {
+                "text": "Saldo por encima del máximo declarado"
+              },
+              "fullDescription": {
+                "text": "El recurso se acumula por encima de lo que el dominio admite: la misma reserva cobrada más de una vez."
+              },
+              "help": {
+                "text": "El recurso se acumula por encima de lo que el dominio admite: la misma reserva cobrada más de una vez."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "fsm",
+                  "financial-conservation",
+                  "money"
+                ],
+                "precision": "very-high"
+              }
+            }
+          ]
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true,
+          "properties": {
+            "rc": 1,
+            "cobertura": {
+              "alcanzabilidad": "MEDIDO",
+              "retencion:cupo": "NO_MEDIDO: el saldo no está definido (FSM001); la retención se puede medir cuando el ciclo se cierre",
+              "guardas": "MEDIDO",
+              "conservacion": "NO_MEDIDO: frontera abierta en profundidad 8"
+            }
+          }
+        }
+      ],
+      "results": [
+        {
+          "ruleId": "FSM001",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "escrow: el ciclo P9 → P3 tiene delta neto +350 centavos por vuelta; el saldo de confirmada, pagada, pendiente no está definido"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/fixtures/studio_city_pre_fix.json"
+                },
+                "region": {
+                  "startLine": 60
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "fsmLedgerGuard/v1": "150bbd0aa30aa679"
+          },
+          "properties": {
+            "clase": "CICLO_CON_FUGA",
+            "transiciones": [
+              "P9",
+              "P3"
+            ],
+            "estados": [
+              "confirmada",
+              "pagada",
+              "pendiente"
+            ],
+            "contraejemplo": [
+              "P9",
+              "P3"
+            ],
+            "detalle": {
+              "recurso": "escrow",
+              "delta_neto": 350,
+              "unidad": "centavos",
+              "aristas_scc": [
+                "P0",
+                "P3",
+                "P4",
+                "P9",
+                "N1",
+                "N2"
+              ],
+              "estados_scc": [
+                "confirmada",
+                "pagada",
+                "pendiente"
+              ]
+            }
+          }
+        },
+        {
+          "ruleId": "FSM001",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "cupo: el ciclo P9 → P3 tiene delta neto +1 lugares por vuelta; el saldo de confirmada, pagada, pendiente no está definido"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/fixtures/studio_city_pre_fix.json"
+                },
+                "region": {
+                  "startLine": 60
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "fsmLedgerGuard/v1": "566540f08d93313d"
+          },
+          "properties": {
+            "clase": "CICLO_CON_FUGA",
+            "transiciones": [
+              "P9",
+              "P3"
+            ],
+            "estados": [
+              "confirmada",
+              "pagada",
+              "pendiente"
+            ],
+            "contraejemplo": [
+              "P9",
+              "P3"
+            ],
+            "detalle": {
+              "recurso": "cupo",
+              "delta_neto": 1,
+              "unidad": "lugares",
+              "aristas_scc": [
+                "P0",
+                "P3",
+                "P4",
+                "P9",
+                "N1",
+                "N2"
+              ],
+              "estados_scc": [
+                "confirmada",
+                "pagada",
+                "pendiente"
+              ]
+            }
+          }
+        },
+        {
+          "ruleId": "FSM006",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "escrow: ninguna transición lo disminuye, así que lo que entra por P3, P4 queda retenido en pagada; algún camino alcanza +350 centavos, y el saldo por estado no está definido porque hay estados alcanzables con dos saldos distintos"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/fixtures/studio_city_pre_fix.json"
+                },
+                "region": {
+                  "startLine": 60
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "fsmLedgerGuard/v1": "df0af54540fdc5c6"
+          },
+          "properties": {
+            "clase": "RECURSO_RETENIDO_SIN_SALIDA",
+            "transiciones": [
+              "P3",
+              "P4"
+            ],
+            "estados": [
+              "pagada"
+            ],
+            "contraejemplo": [],
+            "detalle": {
+              "recurso": "escrow",
+              "alcance": "global",
+              "sin_arista_de_salida": true,
+              "saldo_maximo": 350,
+              "unidad": "centavos"
+            }
+          }
+        },
+        {
+          "ruleId": "FSM008",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "P3 mueve escrow+350 sin clave de idempotencia: el mismo evento aplicado dos veces mueve el recurso dos veces"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/fixtures/studio_city_pre_fix.json"
+                },
+                "region": {
+                  "startLine": 60
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "fsmLedgerGuard/v1": "8714953cd63a32b1"
+          },
+          "properties": {
+            "clase": "MOVIMIENTO_SIN_IDEM",
+            "transiciones": [
+              "P3"
+            ],
+            "estados": [
+              "pendiente",
+              "pagada"
+            ],
+            "contraejemplo": [],
+            "detalle": {}
+          }
+        },
+        {
+          "ruleId": "FSM008",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "P4 mueve escrow+350 sin clave de idempotencia: el mismo evento aplicado dos veces mueve el recurso dos veces"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/fixtures/studio_city_pre_fix.json"
+                },
+                "region": {
+                  "startLine": 75
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "fsmLedgerGuard/v1": "fe4a02c898cc6be6"
+          },
+          "properties": {
+            "clase": "MOVIMIENTO_SIN_IDEM",
+            "transiciones": [
+              "P4"
+            ],
+            "estados": [
+              "confirmada",
+              "pagada"
+            ],
+            "contraejemplo": [],
+            "detalle": {}
+          }
+        },
+        {
+          "ruleId": "FSM009",
+          "ruleIndex": 3,
+          "level": "warning",
+          "message": {
+            "text": "P3 declara escrow en 'pesos' pero el recurso se cuenta en 'centavos'"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/fixtures/studio_city_pre_fix.json"
+                },
+                "region": {
+                  "startLine": 60
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "fsmLedgerGuard/v1": "ee7f75dc689c6300"
+          },
+          "properties": {
+            "clase": "UNIDAD_INCONSISTENTE",
+            "transiciones": [
+              "P3"
+            ],
+            "estados": [
+              "pendiente",
+              "pagada"
+            ],
+            "contraejemplo": [],
+            "detalle": {
+              "recurso": "escrow",
+              "unidad_declarada": "pesos",
+              "unidad_del_recurso": "centavos",
+              "valor": 350
+            }
+          }
+        },
+        {
+          "ruleId": "FSM009",
+          "ruleIndex": 3,
+          "level": "warning",
+          "message": {
+            "text": "P4 declara escrow en 'pesos' pero el recurso se cuenta en 'centavos'"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/fixtures/studio_city_pre_fix.json"
+                },
+                "region": {
+                  "startLine": 75
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "fsmLedgerGuard/v1": "35e7dcb2d7acfb1c"
+          },
+          "properties": {
+            "clase": "UNIDAD_INCONSISTENTE",
+            "transiciones": [
+              "P4"
+            ],
+            "estados": [
+              "confirmada",
+              "pagada"
+            ],
+            "contraejemplo": [],
+            "detalle": {
+              "recurso": "escrow",
+              "unidad_declarada": "pesos",
+              "unidad_del_recurso": "centavos",
+              "valor": 350
+            }
+          }
+        },
+        {
+          "ruleId": "FSM011",
+          "ruleIndex": 4,
+          "level": "error",
+          "message": {
+            "text": "cupo llega a +2 lugares en 'pendiente' y el máximo declarado es +1 (5 estados afectados)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/fixtures/studio_city_pre_fix.json"
+                },
+                "region": {
+                  "startLine": 90
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "fsmLedgerGuard/v1": "e849c128ecaded57"
+          },
+          "properties": {
+            "clase": "COTA_EXCEDIDA",
+            "transiciones": [],
+            "estados": [
+              "atendida",
+              "cancelada",
+              "confirmada",
+              "pagada",
+              "pendiente"
+            ],
+            "contraejemplo": [
+              "P3",
+              "P9"
+            ],
+            "detalle": {
+              "recurso": "cupo",
+              "saldo": 2,
+              "maximo": 1,
+              "unidad": "lugares",
+              "camino": [
+                "P3",
+                "P9"
+              ],
+              "estados_afectados": [
+                "atendida",
+                "cancelada",
+                "confirmada",
+                "pagada",
+                "pendiente"
+              ]
+            }
+          }
+        }
+      ],
+      "properties": {
+        "dominio": "studio-city/reservas",
+        "huella_del_grafo": "2cf20a52cd9a9fd7bbe53834c615ffa0f9bb904bf7b4f48f4210147e2844c59a"
+      }
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "fsm-ledger-guard",
+          "version": "0.1.0",
+          "informationUri": "https://github.com/alexisromtz-lab/fsm-ledger-guard",
+          "rules": []
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true,
+          "properties": {
+            "rc": 0,
+            "cobertura": {
+              "alcanzabilidad": "MEDIDO",
+              "retencion:escrow": "MEDIDO: todo saldo positivo tiene salida",
+              "retencion:cupo": "MEDIDO: el recurso nunca entra",
+              "guardas": "MEDIDO",
+              "conservacion": "MEDIDO: el espacio de saldos se cierra"
+            }
+          }
+        }
+      ],
+      "results": [],
+      "properties": {
+        "dominio": "studio-city/reservas",
+        "huella_del_grafo": "186a2ac766aebcf9ebab8520814d77087f0c8ae06fb347d5a25675b262d2c5c1"
+      }
+    }
+  ]
+}

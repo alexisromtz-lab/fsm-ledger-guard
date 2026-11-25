@@ -1,0 +1,148 @@
+{
+  "schema": "fsm-ledger/1",
+  "dominio": "studio-city/reservas",
+  "inicial": "pendiente",
+  "procedencia": {
+    "repo": "alexisromtz-lab/estudios-worker",
+    "commit": "PROYECTADO",
+    "medido": false,
+    "nota": "No es el estado de ningun commit: es la proyeccion que cierra F1 y F7 sobre e67b9d5a. Anade el estado terminal 'reembolsado' con su arista de salida de escrow, y pone clave de idempotencia en los dos bordes de dinero. Se publica declarado como no medido: con --exigir-medido el resultado correcto es RC 2, no RC 0."
+  },
+  "recursos": {
+    "escrow": {
+      "unidad": "centavos",
+      "minimo": 0,
+      "maximo": 35000,
+      "saldo_inicial": 0,
+      "acumulativa": false
+    },
+    "cupo": {
+      "unidad": "lugares",
+      "minimo": 0,
+      "maximo": 1,
+      "saldo_inicial": 1,
+      "acumulativa": false
+    }
+  },
+  "estados": [
+    { "nombre": "pendiente", "terminal": false },
+    { "nombre": "confirmada", "terminal": false },
+    { "nombre": "pagada", "terminal": false },
+    { "nombre": "atendida", "terminal": true },
+    { "nombre": "cancelada", "terminal": true },
+    { "nombre": "reembolsado", "terminal": true }
+  ],
+  "transiciones": [
+    {
+      "id": "P0",
+      "de": "pendiente",
+      "evento": "confirmar",
+      "a": "confirmada",
+      "delta": {},
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    },
+    {
+      "id": "P3",
+      "de": "pendiente",
+      "evento": "pagar",
+      "a": "pagada",
+      "delta": { "escrow": 35000 },
+      "atomico": true,
+      "idem_key": "preferencia_id",
+      "nota": "Centavos enteros con clave de idempotencia derivada de la preferencia de pago: el webhook repetido no puede mover el dinero dos veces."
+    },
+    {
+      "id": "P4",
+      "de": "confirmada",
+      "evento": "pagar",
+      "a": "pagada",
+      "delta": { "escrow": 35000 },
+      "atomico": true,
+      "idem_key": "preferencia_id"
+    },
+    {
+      "id": "P1",
+      "de": "pendiente",
+      "evento": "cancelar",
+      "a": "cancelada",
+      "delta": { "cupo": -1 },
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    },
+    {
+      "id": "P2",
+      "de": "confirmada",
+      "evento": "cancelar",
+      "a": "cancelada",
+      "delta": { "cupo": -1 },
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    },
+    {
+      "id": "P10",
+      "de": "pagada",
+      "evento": "cancelar",
+      "a": "reembolsado",
+      "delta": { "escrow": -35000, "cupo": -1 },
+      "atomico": true,
+      "idem_key": "reembolso_id",
+      "nota": "Cierra F1: cancelar una reserva pagada devuelve el dinero en vez de retenerlo, y libera el cupo en el mismo acto."
+    },
+    {
+      "id": "P5",
+      "de": "pendiente",
+      "evento": "atender",
+      "a": "atendida",
+      "delta": { "cupo": -1 },
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    },
+    {
+      "id": "P6",
+      "de": "confirmada",
+      "evento": "atender",
+      "a": "atendida",
+      "delta": { "cupo": -1 },
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    },
+    {
+      "id": "P11",
+      "de": "pagada",
+      "evento": "atender",
+      "a": "atendida",
+      "delta": { "escrow": -35000, "cupo": -1 },
+      "atomico": true,
+      "idem_key": "captura_id",
+      "nota": "El anticipo deja de estar en custodia y se reconoce como ingreso. Sin esta arista el saldo de atendida dependeria del camino y la maquina no podria decir cuanto dinero quedo retenido."
+    },
+    {
+      "id": "N1",
+      "de": "pendiente",
+      "evento": "mismo_estado",
+      "a": "pendiente",
+      "delta": {},
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    },
+    {
+      "id": "N2",
+      "de": "confirmada",
+      "evento": "mismo_estado",
+      "a": "confirmada",
+      "delta": {},
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    },
+    {
+      "id": "N3",
+      "de": "atendida",
+      "evento": "mismo_estado",
+      "a": "atendida",
+      "delta": {},
+      "atomico": true,
+      "idem_key": "reserva_id+estado"
+    }
+  ]
+}
