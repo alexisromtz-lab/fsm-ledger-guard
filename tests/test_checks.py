@@ -213,6 +213,49 @@ class RetencionTest(unittest.TestCase):
         self.assertIn("acumulativo", r.cobertura["retencion:saldo"])
 
 
+class CoberturaDeRetencionTest(unittest.TestCase):
+    """La cobertura dice qué mitad del par se midió, y hay que poder leerlo.
+
+    Caso real (payouts de un creador, 2026-11-26): con la retención ya presente en
+    el estado inicial y sólo aristas de salida, el veredicto fue RC 0 y la
+    cobertura dijo «el recurso nunca entra». Ese verde no cubría la entrada, y
+    nada en el RC lo delataba. Estos dos tests fijan que la diferencia se publique:
+    si alguien la borra, el mismo grafo verde pasaría a decir que todo saldo
+    positivo tiene salida sin haber visto entrar nada.
+    """
+
+    def test_frontera_que_oculta_la_entrada_lo_declara(self):
+        g = cargar_texto(
+            documento(
+                [("T1", "a", "b", {"saldo": -100})],
+                [("a", False), ("b", True)],
+                recursos={
+                    "saldo": {"unidad": "u", "minimo": 0, "maximo": 100, "saldo_inicial": 100}
+                },
+            )
+        )
+        r = auditar(g)
+        self.assertEqual(por_regla(r, "FSM006"), [])
+        self.assertEqual(r.rc, RC_LIMPIO)
+        self.assertEqual(r.cobertura["retencion:saldo"], "MEDIDO: el recurso nunca entra")
+
+    def test_con_arista_de_alta_la_cobertura_cubre_el_par(self):
+        g = cargar_texto(
+            documento(
+                [("T0", "p", "a", {"saldo": 100}), ("T1", "a", "b", {"saldo": -100})],
+                [("p", False), ("a", False), ("b", True)],
+                recursos={
+                    "saldo": {"unidad": "u", "minimo": 0, "maximo": 100, "saldo_inicial": 0}
+                },
+                inicial="p",
+            )
+        )
+        r = auditar(g)
+        self.assertEqual(por_regla(r, "FSM006"), [])
+        self.assertEqual(r.rc, RC_LIMPIO)
+        self.assertEqual(r.cobertura["retencion:saldo"], "MEDIDO: todo saldo positivo tiene salida")
+
+
 class GuardasTest(unittest.TestCase):
     def test_movimiento_sin_atomicidad_y_sin_idem(self):
         g = cargar_texto(
