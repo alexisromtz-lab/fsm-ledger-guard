@@ -156,5 +156,49 @@ class CargaTest(unittest.TestCase):
                 desde_texto(texto(doc))
 
 
+class EnlacesTest(unittest.TestCase):
+    """Un enlace mal declarado es un enlace que miente: se rechaza, no se adivina."""
+
+    def _doc(self, enlaces):
+        return documento(
+            [("T1", "a", "b", {"saldo": 1})],
+            [("a", False), ("b", True)],
+            recursos={
+                "saldo": {"unidad": "centavos", "minimo": 0, "saldo_inicial": 0},
+                "libro": {"unidad": "centavos", "minimo": 0, "saldo_inicial": 0},
+            },
+            enlaces=enlaces,
+        )
+
+    def test_enlace_valido_se_lee_con_nombre_derivado(self):
+        g = cargar_texto(self._doc([{"recursos": ["saldo", "libro"]}]))
+        self.assertEqual(len(g.enlaces), 1)
+        self.assertEqual(g.enlaces[0].nombre, "saldo↔libro")
+        self.assertEqual(g.enlaces[0].ratio, (1, 1))
+
+    def test_recurso_no_declarado_se_rechaza(self):
+        with self.assertRaises(ErrorDSL):
+            desde_texto(texto(self._doc([{"recursos": ["saldo", "fantasma"]}])))
+
+    def test_recurso_repetido_se_rechaza(self):
+        with self.assertRaises(ErrorDSL):
+            desde_texto(texto(self._doc([{"recursos": ["saldo", "saldo"]}])))
+
+    def test_ratio_de_longitud_distinta_se_rechaza(self):
+        with self.assertRaises(ErrorDSL):
+            desde_texto(texto(self._doc([{"recursos": ["saldo", "libro"], "ratio": [1]}])))
+
+    def test_un_solo_recurso_no_es_un_enlace(self):
+        with self.assertRaises(ErrorDSL):
+            desde_texto(texto(self._doc([{"recursos": ["saldo"]}])))
+
+    def test_sin_enlaces_la_huella_no_cambia(self):
+        con = cargar_texto(self._doc([{"recursos": ["saldo", "libro"]}]))
+        sin = cargar_texto(self._doc(None))
+        self.assertEqual(len(sin.enlaces), 0)
+        self.assertNotEqual(con.huella(), sin.huella())
+        self.assertEqual(sin.huella(), cargar_texto(self._doc(None)).huella())
+
+
 if __name__ == "__main__":
     unittest.main()

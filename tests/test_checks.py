@@ -375,6 +375,70 @@ class EscaleraTest(unittest.TestCase):
         self.assertEqual(uno, sorted(uno, key=lambda h: (h["regla"], h["linea"], h["transiciones"])))
 
 
+class EnlaceDeclaradoTest(unittest.TestCase):
+    """FSM012 sólo existe donde el sujeto declara que dos recursos son el mismo dinero.
+
+    Sin la declaración, que ``saldo`` y ``libro`` diverjan es un juicio del analista;
+    con ella es un cómputo que el motor puede enumerar sobre todas las aristas.
+    """
+
+    RECURSOS = {
+        "saldo": {
+            "unidad": "centavos",
+            "minimo": 0,
+            "maximo": None,
+            "saldo_inicial": 0,
+            "acumulativa": True,
+        },
+        "libro": {
+            "unidad": "centavos",
+            "minimo": 0,
+            "maximo": None,
+            "saldo_inicial": 0,
+            "acumulativa": True,
+        },
+    }
+
+    def test_mueve_uno_y_no_el_otro(self):
+        g = cargar_texto(
+            documento(
+                [("K1", "a", "b", {"saldo": 100}), ("K2", "b", "c", {})],
+                [("a", False), ("b", False), ("c", True)],
+                recursos=self.RECURSOS,
+                enlaces=[{"nombre": "saldo↔libro", "recursos": ["saldo", "libro"], "ratio": [1, 1]}],
+            )
+        )
+        r = auditar(g)
+        hallazgos = por_regla(r, "FSM012")
+        self.assertEqual([h.transiciones for h in hallazgos], [("K1",)])
+        self.assertEqual(hallazgos[0].detalle["deltas"], {"saldo": 100, "libro": 0})
+        self.assertIn("saldo↔libro", hallazgos[0].mensaje)
+        self.assertEqual(r.rc, RC_HALLAZGO)
+
+    def test_proporcion_respetada_no_emite(self):
+        g = cargar_texto(
+            documento(
+                [("K1", "a", "b", {"saldo": 100, "libro": 200}), ("K2", "b", "c", {})],
+                [("a", False), ("b", False), ("c", True)],
+                recursos=self.RECURSOS,
+                enlaces=[{"nombre": "uno a dos", "recursos": ["saldo", "libro"], "ratio": [1, 2]}],
+            )
+        )
+        self.assertEqual(por_regla(auditar(g), "FSM012"), [])
+
+    def test_sin_enlaces_es_cero_medido_y_no_silencio(self):
+        g = cargar_texto(
+            documento(
+                [("K1", "a", "b", {"saldo": 100}), ("K2", "b", "c", {})],
+                [("a", False), ("b", False), ("c", True)],
+                recursos=self.RECURSOS,
+            )
+        )
+        r = auditar(g)
+        self.assertEqual(por_regla(r, "FSM012"), [])
+        self.assertTrue(r.cobertura["enlaces"].startswith("MEDIDO"), msg=r.cobertura["enlaces"])
+
+
 class ReglasTest(unittest.TestCase):
     def test_toda_regla_declarada_tiene_titulo_y_ayuda(self):
         for regla, cuerpo in checks.REGLAS.items():

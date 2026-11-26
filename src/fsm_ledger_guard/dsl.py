@@ -62,6 +62,20 @@ class Estado:
 
 
 @dataclass(frozen=True)
+class Enlace:
+    """Dos o más recursos que el sujeto declara solidarios, con su proporción.
+
+    Sin esta declaración el motor no puede saber que ``saldo`` y ``libro`` son
+    el mismo dinero visto dos veces; con ella, una transición que mueve uno y no
+    el otro deja de ser invisible.
+    """
+
+    nombre: str
+    recursos: Tuple[str, ...]
+    ratio: Tuple[int, ...]
+
+
+@dataclass(frozen=True)
 class Transicion:
     id: str
     de: str
@@ -109,6 +123,7 @@ class Grafo:
     estados: Dict[str, Estado]
     recursos: Dict[str, Recurso]
     transiciones: Tuple[Transicion, ...]
+    enlaces: Tuple[Enlace, ...] = ()
     procedencia: Dict[str, Any] = field(default_factory=dict)
     fuente: str = "<memoria>"
     texto_fuente: str = ""
@@ -128,7 +143,7 @@ class Grafo:
         return bool(self.procedencia.get("medido", True))
 
     def a_dict(self) -> Dict[str, Any]:
-        return {
+        doc: Dict[str, Any] = {
             "schema": ESQUEMA,
             "dominio": self.dominio,
             "inicial": self.inicial,
@@ -146,6 +161,14 @@ class Grafo:
             },
             "transiciones": [t.a_dict() for t in self.transiciones],
         }
+        # Sólo cuando se declaran: una máquina sin enlaces conserva su huella, y
+        # la huella de un sujeto ya publicado no cambia por una regla nueva.
+        if self.enlaces:
+            doc["enlaces"] = [
+                {"nombre": e.nombre, "recursos": list(e.recursos), "ratio": list(e.ratio)}
+                for e in self.enlaces
+            ]
+        return doc
 
     def canonico(self) -> str:
         """Serialización determinista: misma máquina ⇒ mismos bytes ⇒ misma huella."""
@@ -279,12 +302,42 @@ def desde_texto(texto: str, fuente: str = "<memoria>") -> Grafo:
             )
         )
 
+    enlaces_doc = doc.get("enlaces") or []
+    if not isinstance(enlaces_doc, list):
+        raise ErrorDSL(f"{fuente}: enlaces debe ser una lista")
+    enlaces = []
+    for i, cuerpo in enumerate(enlaces_doc):
+        campo = f"{fuente}: enlaces[{i}]"
+        if not isinstance(cuerpo, dict):
+            raise ErrorDSL(f"{campo} debe ser un objeto")
+        miembros = cuerpo.get("recursos")
+        if not isinstance(miembros, list) or len(miembros) < 2:
+            raise ErrorDSL(f"{campo}.recursos debe ser una lista de dos o más recursos")
+        nombres = tuple(_texto(m, f"{campo}.recursos") for m in miembros)
+        if len(set(nombres)) != len(nombres):
+            raise ErrorDSL(f"{campo}.recursos: un recurso no se enlaza consigo mismo")
+        for nombre in nombres:
+            if nombre not in recursos:
+                raise ErrorDSL(f"{campo}.recursos: el recurso {nombre!r} no está declarado")
+        ratio_doc = cuerpo.get("ratio", [1] * len(nombres))
+        if not isinstance(ratio_doc, list) or len(ratio_doc) != len(nombres):
+            raise ErrorDSL(
+                f"{campo}.ratio debe declarar una proporción por recurso ({len(nombres)})"
+            )
+        ratio = tuple(_entero(v, f"{campo}.ratio") for v in ratio_doc)
+        if any(v <= 0 for v in ratio):
+            raise ErrorDSL(f"{campo}.ratio: la proporción es de enteros positivos")
+        enlaces.append(
+            Enlace(nombre=str(cuerpo.get("nombre") or "↔".join(nombres)), recursos=nombres, ratio=ratio)
+        )
+
     return Grafo(
         dominio=dominio,
         inicial=inicial,
         estados=estados,
         recursos=recursos,
         transiciones=tuple(transiciones),
+        enlaces=tuple(enlaces),
         procedencia=doc.get("procedencia") or {},
         fuente=fuente,
         texto_fuente=texto,

@@ -108,6 +108,15 @@ REGLAS: Dict[str, Dict[str, str]] = {
         "ayuda": "El recurso se acumula por encima de lo que el dominio admite: la misma "
         "reserva cobrada más de una vez.",
     },
+    "FSM012": {
+        "clase": "ENLACE_DECLARADO_ROTO",
+        "severidad": "error",
+        "titulo": "Transición que mueve un recurso del enlace sin mover el otro",
+        "ayuda": "El sujeto declara que dos recursos son el mismo dinero visto dos veces "
+        "(saldo y libro, cobro y asiento). Una transición que mueve uno y no el otro deja "
+        "las dos cuentas divergentes para siempre: la suma de los asientos ya no explica "
+        "el saldo.",
+    },
 }
 
 
@@ -631,6 +640,43 @@ def _chequeo_guardas(grafo: Grafo, cobertura: Dict[str, str]) -> List[Hallazgo]:
     return hallazgos
 
 
+def _chequeo_enlaces(grafo: Grafo, cobertura: Dict[str, str]) -> List[Hallazgo]:
+    """Un enlace declarado sólo se cumple si todo movimiento respeta su proporción."""
+    if not grafo.enlaces:
+        # Cero declarado, no cero silencioso: se midió y el sujeto no afirma nada.
+        cobertura["enlaces"] = "MEDIDO: el sujeto no declara enlaces (0 de 0)"
+        return []
+    hallazgos: List[Hallazgo] = []
+    for enlace in grafo.enlaces:
+        for t in grafo.transiciones:
+            deltas = [t.delta.get(r, 0) for r in enlace.recursos]
+            if not any(deltas):
+                continue
+            if all(d * enlace.ratio[0] == deltas[0] * r for d, r in zip(deltas, enlace.ratio)):
+                continue
+            movimiento = ", ".join(
+                f"{r}{d:+d}" for r, d in zip(enlace.recursos, deltas) if d
+            ) or "nada"
+            proporcion = ":".join(str(v) for v in enlace.ratio)
+            hallazgos.append(
+                _hallazgo(
+                    "FSM012",
+                    f"{t.id} mueve {movimiento} y el enlace '{enlace.nombre}' declara "
+                    f"{proporcion}: el delta queda asimétrico",
+                    transiciones=(t.id,),
+                    estados=(t.de, t.a),
+                    detalle={
+                        "enlace": enlace.nombre,
+                        "ratio": list(enlace.ratio),
+                        "deltas": dict(zip(enlace.recursos, deltas)),
+                    },
+                    linea=t.linea,
+                )
+            )
+    cobertura["enlaces"] = f"MEDIDO: {len(grafo.enlaces)} enlace(s) declarado(s)"
+    return hallazgos
+
+
 def conservacion_acotada(
     grafo: Grafo, profundidad: int, limite: int = LIMITE_ESTADOS_DE_SALDO
 ) -> Tuple[List[Hallazgo], Medicion]:
@@ -770,6 +816,7 @@ def auditar(grafo: Grafo, profundidad: int = 8, exigir_medido: bool = False) -> 
     hallazgos += _chequeo_estados_muertos(grafo, alcance)
     hallazgos += _chequeo_retencion(grafo, alcance, cobertura)
     hallazgos += _chequeo_guardas(grafo, cobertura)
+    hallazgos += _chequeo_enlaces(grafo, cobertura)
     de_cota, medicion = conservacion_acotada(grafo, profundidad)
     hallazgos += de_cota
 

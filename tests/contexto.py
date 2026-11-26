@@ -24,9 +24,10 @@ def documento(
     recursos: Optional[Dict[str, Dict[str, Any]]] = None,
     inicial: str = "a",
     medido: bool = True,
+    enlaces: Optional[Sequence[Dict[str, Any]]] = None,
 ) -> Dict[str, Any]:
     """Documento ``fsm-ledger/1`` mínimo para los tests unitarios."""
-    return {
+    doc: Dict[str, Any] = {
         "schema": "fsm-ledger/1",
         "dominio": "test/sintetico",
         "inicial": inicial,
@@ -47,6 +48,9 @@ def documento(
             for t in transiciones
         ],
     }
+    if enlaces:
+        doc["enlaces"] = [dict(e) for e in enlaces]
+    return doc
 
 
 def texto(doc: Dict[str, Any]) -> str:

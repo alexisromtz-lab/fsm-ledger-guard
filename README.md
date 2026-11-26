@@ -243,6 +243,22 @@ el instrumento no los supone seguros.
 | `FSM009` | `UNIDAD_INCONSISTENTE` | una arista declara pesos sobre un recurso en centavos | exacto |
 | `FSM010` | `SALDO_NEGATIVO` | ruta alcanzable que extrae lo que no hay | acotado |
 | `FSM011` | `COTA_EXCEDIDA` | el saldo supera el máximo: la misma reserva cobrada dos veces | acotado |
+| `FSM012` | `ENLACE_DECLARADO_ROTO` | una arista mueve un recurso del enlace y no el otro, o rompe su proporción | exacto |
+
+`FSM012` no adivina: sólo existe donde el sujeto **declara** el enlace, porque
+que `saldo` y `libro` sean el mismo dinero es un juicio sobre el dominio, no algo
+que el grafo pueda inferir. Sin `enlaces` declarados la cobertura dice
+`MEDIDO: el sujeto no declara enlaces (0 de 0)` — un cero medido, no un silencio.
+
+```json
+"enlaces": [
+  { "nombre": "saldo↔libro", "recursos": ["saldo", "libro"], "ratio": [1, 1] }
+]
+```
+
+Con esa declaración, `confirmDeposit` de `Bismark299/kemdataplus` —que acredita
+`wallets.balance` sin escribir la fila de `wallet_ledger`— pasa de invisible a
+`FSM012` con el delta exacto (`saldo+1`, `libro+0`).
 
 «Acotado» significa: dentro de la profundidad pedida; agotarla es `RC 2`, no un
 verde. `FSM006` responde en dos alcances: **global** (ninguna arista disminuye el
