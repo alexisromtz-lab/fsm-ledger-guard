@@ -279,13 +279,17 @@ esquema oficial `sarif-schema-2.1.0.json` con `jsonschema` (Draft-07): cero
 errores. `.github/workflows/verify.yml` audita los seis fixtures en cada push y
 exige `1 / 1 / 1 / 0` para Studio City y `1 / 0` para Moon & Rain.
 
-Medición viva, 26-Nov-2026 @ `1c37c58`, corrida 45731712585: la pestaña
-Security de este repositorio publica **12 alertas** — `FSM001`×2 (el ciclo de
-dos aristas), `FSM006`×3 (el escrow de cada acto posterior al parche),
-`FSM008`×4 (idempotencia), `FSM009`×2 (unidades) y `FSM011`×1 (cupo por encima
-de su máximo). Son las 8 de `pre_fix`, las 3 de `post_fix` y la de `f7`: cada
+Medición viva, 26-Nov-2026 @ `c6a21fe`, corrida 45747913228: la pestaña
+Security de este repositorio publica **15 alertas** — `FSM001`×2 (el ciclo de
+dos aristas), `FSM002`×1 y `FSM004`×1 (el estado sin escritor y el componente
+sin salida de Moon & Rain), `FSM006`×4 (el escrow de cada acto posterior al
+parche, más el importe retenido de la tienda), `FSM008`×4 (idempotencia),
+`FSM009`×2 (unidades) y `FSM011`×1 (cupo por encima de su máximo). Son las 8 de
+`pre_fix`, las 3 de `post_fix`, la de `f7` y las 3 de `tienda-pre_fix`: cada
 acto se sube con categoría distinta a propósito, porque lo que se demuestra es
-el delta entre ellos —**8 → 3 → 1** sobre el mismo repositorio—, no un conteo.
+el delta entre ellos —**8 → 3 → 1** sobre Studio City y **3 → 0** sobre Moon &
+Rain—, no un conteo. `tienda-post_fix` no aporta ninguna: el parche cerró los
+tres y el motor no cambió.
 
 Como hook de pre-commit, el instrumento audita los documentos que terminen en
 `.fsm.json`:
