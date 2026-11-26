@@ -13,17 +13,30 @@ Sin dependencias. Python ≥ 3.9. Emite **SARIF 2.1.0** (GitHub Code Scanning) y
 **recibo `conservation/1`** que [`conservation-ledger`](https://github.com/alexisromtz-lab/conservation-ledger)
 recomputa por su cuenta.
 
+## Instalar
+
+Python ≥ 3.9. El comando apunta al árbol, no a un registro, así que no hay paso
+de publicación en medio:
+
+```console
+$ uvx --from git+https://github.com/alexisromtz-lab/fsm-ledger-guard fsm-ledger-guard --version
+fsm-ledger-guard 0.1.5
+```
+
+La primera invocación compila el wheel y tarda **6,8 s**; las siguientes,
+**1,0 s**. `pip install fsm-ledger-guard` en cuanto el nombre esté publicado en
+PyPI: el comando de arriba no cambia cuando eso pase.
+
 ## El caso que puedes rehacer en un segundo
 
 Los fixtures de este README salen de repositorios privados: su huella es
-verificable, pero el lector no puede regenerarlos. Este caso sí. Se deriva del
-código y se audita con dos comandos por árbol, y el par `pre_fix`/`post_fix`
-enseña el hallazgo y su corrección:
+verificable, pero el lector no puede regenerarlos. Este caso sí. El sujeto entra
+por URL pública y la herramienta por `uvx`: dos comandos, sin clonar, y el par
+`pre_fix`/`post_fix` enseña el hallazgo y su corrección.
 
 ```console
-$ python examples/ecommerce_referencia/extraer.py --arbol pre_fix --salida /tmp/pre.json
-OK: /tmp/pre.json escrito desde pre_fix · 12 transiciones · 4 escritores
-$ fsm-ledger-guard scan /tmp/pre.json; echo $?
+$ curl -sO https://raw.githubusercontent.com/alexisromtz-lab/fsm-ledger-guard/main/tests/fixtures/referencia_publica_pre_fix.json
+$ uvx --from git+https://github.com/alexisromtz-lab/fsm-ledger-guard fsm-ledger-guard scan referencia_publica_pre_fix.json; echo $?
 dominio   ejemplo-publico/pedidos
 procedencia alexisromtz-lab/fsm-ledger-guard @ huella:b2e03a7914c0
 grafo     5 estados · 12 transiciones · huella 5a60b2aa62d2f6f6
@@ -31,9 +44,32 @@ grafo     5 estados · 12 transiciones · huella 5a60b2aa62d2f6f6
 [FSM001] error   CICLO_CON_FUGA
           dinero: el ciclo P2 tiene delta neto +69900 centavos por vuelta; el saldo de devuelto, enviado, pagado no está definido
           contraejemplo: P2
-          /tmp/pre.json:119
+          referencia_publica_pre_fix.json:119
 … 13 hallazgos en 5 códigos (FSM001 CICLO_CON_FUGA · FSM005 TERMINAL_CON_SALIDA
 · FSM008 MOVIMIENTO_SIN_IDEM · FSM010 SALDO_NEGATIVO · FSM011 COTA_EXCEDIDA)
+RC 1
+1
+$ curl -sO https://raw.githubusercontent.com/alexisromtz-lab/fsm-ledger-guard/main/tests/fixtures/referencia_publica_post_fix.json
+$ uvx --from git+https://github.com/alexisromtz-lab/fsm-ledger-guard fsm-ledger-guard scan referencia_publica_post_fix.json; echo $?
+… cabecera, bloque `conservación` y cinco coberturas; ningún hallazgo
+RC 0
+0
+```
+
+`scan` tarda **0,06 s** sobre Python 3.9.6. El árbol roto sale `1` con 13
+hallazgos y **dos coberturas `NO_MEDIDO`** —frontera abierta en profundidad 8 y
+saldo sin definir—; con el parche, `retención:dinero` pasa a `MEDIDO` y sale
+`0`. El contador de cobertura no se rellena con un cero cuando falta.
+
+El fixture vive en `tests/fixtures/`, donde lo usan los tests, y **no** se copia
+a `examples/`: dos copias del mismo sujeto divergen. Para regenerar ese mismo
+sujeto desde el código que lo produce, el par se rehace en local —las dos
+corridas de `scan` imprimen lo de arriba salvo la ruta del locus—:
+
+```console
+$ python examples/ecommerce_referencia/extraer.py --arbol pre_fix --salida /tmp/pre.json
+OK: /tmp/pre.json escrito desde pre_fix · 12 transiciones · 4 escritores
+$ fsm-ledger-guard scan /tmp/pre.json; echo $?
 RC 1
 1
 $ python examples/ecommerce_referencia/extraer.py --arbol post_fix --salida /tmp/post.json
@@ -42,11 +78,6 @@ $ fsm-ledger-guard scan /tmp/post.json; echo $?
 RC 0
 0
 ```
-
-`scan` tardó **0,06 s** sobre Python 3.9.6. El árbol roto sale `1` con 13
-hallazgos y **dos coberturas `NO_MEDIDO`** —frontera abierta en profundidad 8 y
-saldo sin definir—; con el parche, `retención:dinero` pasa a `MEDIDO` y sale
-`0`. El contador de cobertura no se rellena con un cero cuando falta.
 
 ```console
 $ fsm-ledger-guard scan mi-flujo.json
