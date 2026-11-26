@@ -13,6 +13,41 @@ Sin dependencias. Python ≥ 3.9. Emite **SARIF 2.1.0** (GitHub Code Scanning) y
 **recibo `conservation/1`** que [`conservation-ledger`](https://github.com/alexisromtz-lab/conservation-ledger)
 recomputa por su cuenta.
 
+## El caso que puedes rehacer en un segundo
+
+Los fixtures de este README salen de repositorios privados: su huella es
+verificable, pero el lector no puede regenerarlos. Este caso sí. Se deriva del
+código y se audita con dos comandos por árbol, y el par `pre_fix`/`post_fix`
+enseña el hallazgo y su corrección:
+
+```console
+$ python examples/ecommerce_referencia/extraer.py --arbol pre_fix --salida /tmp/pre.json
+OK: /tmp/pre.json escrito desde pre_fix · 12 transiciones · 4 escritores
+$ fsm-ledger-guard scan /tmp/pre.json; echo $?
+dominio   ejemplo-publico/pedidos
+procedencia alexisromtz-lab/fsm-ledger-guard @ huella:b2e03a7914c0
+grafo     5 estados · 12 transiciones · huella 5a60b2aa62d2f6f6
+
+[FSM001] error   CICLO_CON_FUGA
+          dinero: el ciclo P2 tiene delta neto +69900 centavos por vuelta; el saldo de devuelto, enviado, pagado no está definido
+          contraejemplo: P2
+          /tmp/pre.json:119
+… 13 hallazgos en 5 códigos (FSM001 CICLO_CON_FUGA · FSM005 TERMINAL_CON_SALIDA
+· FSM008 MOVIMIENTO_SIN_IDEM · FSM010 SALDO_NEGATIVO · FSM011 COTA_EXCEDIDA)
+RC 1
+1
+$ python examples/ecommerce_referencia/extraer.py --arbol post_fix --salida /tmp/post.json
+OK: /tmp/post.json escrito desde post_fix · 5 transiciones · 4 escritores
+$ fsm-ledger-guard scan /tmp/post.json; echo $?
+RC 0
+0
+```
+
+`scan` tardó **0,06 s** sobre Python 3.9.6. El árbol roto sale `1` con 13
+hallazgos y **dos coberturas `NO_MEDIDO`** —frontera abierta en profundidad 8 y
+saldo sin definir—; con el parche, `retención:dinero` pasa a `MEDIDO` y sale
+`0`. El contador de cobertura no se rellena con un cero cuando falta.
+
 ```console
 $ fsm-ledger-guard scan mi-flujo.json
 dominio   studio-city/reservas
