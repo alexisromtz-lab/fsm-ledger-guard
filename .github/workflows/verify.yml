@@ -57,11 +57,14 @@ jobs:
           fsm-ledger-guard scan tests/fixtures/studio_city_post_fix.json \
             --sarif out/studio_city_post_fix.sarif --recibo out/studio_city_post_fix.recibo.json
           post=$?
+          fsm-ledger-guard scan tests/fixtures/studio_city_f7.json \
+            --sarif out/studio_city_f7.sarif --recibo out/studio_city_f7.recibo.json
+          f7=$?
           fsm-ledger-guard scan tests/fixtures/studio_city_objetivo.json \
             --sarif out/studio_city_objetivo.sarif --recibo out/studio_city_objetivo.recibo.json
           objetivo=$?
-          echo "pre_fix=$pre post_fix=$post objetivo=$objetivo"
-          test "$pre" = 1 && test "$post" = 1 && test "$objetivo" = 0
+          echo "pre_fix=$pre post_fix=$post f7=$f7 objetivo=$objetivo"
+          test "$pre" = 1 && test "$post" = 1 && test "$f7" = 1 && test "$objetivo" = 0
       # Una categoria por corrida: el Action rechaza varios runs bajo la misma.
       - name: Upload SARIF (pre_fix)
         if: always()
@@ -75,6 +78,12 @@ jobs:
         with:
           sarif_file: out/studio_city_post_fix.sarif
           category: fsm-ledger-guard/post_fix
+      - name: Upload SARIF (f7)
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: out/studio_city_f7.sarif
+          category: fsm-ledger-guard/f7
       - name: Upload SARIF (objetivo)
         if: always()
         uses: github/codeql-action/upload-sarif@v4

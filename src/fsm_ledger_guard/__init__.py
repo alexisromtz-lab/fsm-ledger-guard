@@ -7,4 +7,4 @@ y transiciones monetarias sin guarda. Emite SARIF 2.1.0 y un recibo
 """
 from __future__ import annotations
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"

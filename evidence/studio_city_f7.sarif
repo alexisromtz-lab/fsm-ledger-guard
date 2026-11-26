@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "fsm-ledger-guard",
+          "version": "0.1.0",
+          "informationUri": "https://github.com/alexisromtz-lab/fsm-ledger-guard",
+          "rules": [
+            {
+              "id": "FSM006",
+              "name": "RECURSO_RETENIDO_SIN_SALIDA",
+              "shortDescription": {
+                "text": "Recurso que entra y no tiene arista que lo saque"
+              },
+              "fullDescription": {
+                "text": "Dinero o cupo retenido sin reembolso ni liberación: hay una asimetría entre lo que se toma y lo que se devuelve."
+              },
+              "help": {
+                "text": "Dinero o cupo retenido sin reembolso ni liberación: hay una asimetría entre lo que se toma y lo que se devuelve."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "fsm",
+                  "financial-conservation",
+                  "money"
+                ],
+                "precision": "very-high"
+              }
+            }
+          ]
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true,
+          "properties": {
+            "rc": 1,
+            "cobertura": {
+              "alcanzabilidad": "MEDIDO",
+              "retencion:cupo": "MEDIDO: el recurso nunca entra",
+              "guardas": "MEDIDO",
+              "conservacion": "MEDIDO: el espacio de saldos se cierra"
+            }
+          }
+        }
+      ],
+      "results": [
+        {
+          "ruleId": "FSM006",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "escrow: ninguna transición lo disminuye, así que lo que entra por P3, P4 queda retenido en pagada; algún camino alcanza +35000 centavos, y el saldo por estado no está definido porque hay estados alcanzables con dos saldos distintos"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/fixtures/studio_city_f7.json"
+                },
+                "region": {
+                  "startLine": 60
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "fsmLedgerGuard/v1": "df0af54540fdc5c6"
+          },
+          "properties": {
+            "clase": "RECURSO_RETENIDO_SIN_SALIDA",
+            "transiciones": [
+              "P3",
+              "P4"
+            ],
+            "estados": [
+              "pagada"
+            ],
+            "contraejemplo": [],
+            "detalle": {
+              "recurso": "escrow",
+              "alcance": "global",
+              "sin_arista_de_salida": true,
+              "saldo_maximo": 35000,
+              "unidad": "centavos"
+            }
+          }
+        }
+      ],
+      "properties": {
+        "dominio": "studio-city/reservas",
+        "huella_del_grafo": "9a0fabcae7ab5cc7f565da80347fae779064a24c741a30c6f2144aad72e7feed"
+      }
+    }
+  ]
+}

@@ -52,16 +52,19 @@ Lo que **no** promete: no lee tu código fuente. El grafo es una declaración
 `fsm-ledger/1` que tú escribes (o generas) y el auditor verifica. Un grafo que
 miente produce un veredicto sobre una mentira.
 
-## 2. El caso real: Studio City, tres actos
+## 2. El caso real: Studio City, tres commits y un objetivo
 
-Los tres fixtures de [`tests/fixtures/`](tests/fixtures) son un flujo de reservas
-con anticipo medido en un SaaS en producción. Están en el repositorio porque el
+Los fixtures de [`tests/fixtures/`](tests/fixtures) son un flujo de reservas
+con anticipo medido en un SaaS en producción. Tres de ellos son el **mismo
+repositorio en tres commits** —con el delta medido entre uno y otro— y el cuarto
+es una proyección que se declara como tal. Están en el repositorio porque el
 instrumento se juzga por lo que encontró, no por su README.
 
 | acto | commit | RC | qué dice |
 |---|---|---|---|
 | [`studio_city_pre_fix.json`](tests/fixtures/studio_city_pre_fix.json) | `95ea4a71` | **1** · 8 hallazgos | el dinero se puede cobrar dos veces y nadie lo suelta |
 | [`studio_city_post_fix.json`](tests/fixtures/studio_city_post_fix.json) | `e67b9d5a` | **1** · 3 hallazgos | ciclo cerrado y unidades normalizadas; falta la idempotencia |
+| [`studio_city_f7.json`](tests/fixtures/studio_city_f7.json) | `251aaff8` | **1** · **1** hallazgo | la deuda ya tiene clave de idempotencia; sólo falta la salida del dinero |
 | [`studio_city_objetivo.json`](tests/fixtures/studio_city_objetivo.json) | *proyección* | **0** | lo que haría falta; **no está medido** |
 
 **Antes.** El ciclo de dos aristas `pagada → pendiente → pagada` tiene delta neto
@@ -76,6 +79,17 @@ dinero entra y se queda.
 un fallo del auditor: en `e67b9d5a` los dos bordes que mueven dinero tampoco
 declaran clave de idempotencia (`FSM008`), y ninguna arista saca `escrow` del
 estado `pagada` (`FSM006`). Publicar aquí un RC 0 sería mentir sobre un commit.
+
+**Después de F7.** El segundo parche no toca el grafo: toca el dinero. Dos
+llamadas a `crearPreferencia` para la misma reserva acuñaban dos preferencias de
+cobro y dejaban dos filas `pendiente` —un doble clic es un cobro duplicable—.
+La clave de idempotencia no puede ser el `preference_id` de Mercado Pago, porque
+cada POST acuña uno nuevo: es **la deuda** `(reserva_id, estudio_id, concepto)`,
+con un solo `pendiente` vivo. La arista declara esa clave y `FSM008` desaparece
+porque el defecto desapareció, no porque el auditor lo ignore: **3 → 1** con la
+regla que ya existía. El único hallazgo que queda es `FSM006`, y es una política:
+`pagada → cancelada` responde `409` a propósito mientras no exista un estado
+`reembolsado` acoplado al asiento negativo en `platino-finance`.
 
 **Objetivo.** `studio_city_objetivo.json` añade el estado terminal `reembolsado`
 con su salida de `escrow`, la captura en `atendida` y las claves de idempotencia.
@@ -212,17 +226,17 @@ SARIF se valida y se sube como artefacto, pero no llega a la pestaña Security.
 
 Cada resultado lleva `ruleId` (`FSM001`…), `level`, la línea del fixture,
 `partialFingerprints` estable entre corridas y, en `properties`, el
-`contraejemplo` completo. Los tres archivos de `evidence/` se validaron contra el
+`contraejemplo` completo. Los archivos de `evidence/` se validaron contra el
 esquema oficial `sarif-schema-2.1.0.json` con `jsonschema` (Draft-07): cero
-errores. `.github/workflows/verify.yml` audita los tres fixtures en cada push y
-exige `1 / 1 / 0`.
+errores. `.github/workflows/verify.yml` audita los cuatro fixtures en cada push y
+exige `1 / 1 / 1 / 0`.
 
 Medición viva, 25-Nov-2026 @ `486c4ee`: la pestaña Security de este repositorio
 publica **11 alertas** — `FSM001`×2 (el ciclo de dos aristas), `FSM006`×2,
 `FSM008`×4 (idempotencia), `FSM009`×2 (unidades) y `FSM011`×1 (cupo por encima
-de su máximo). Son las 8 de `pre_fix` más las 3 de `post_fix`: los dos actos se
-suben con categoría distinta a propósito, porque lo que se demuestra es el
-delta entre ambos, no un conteo.
+de su máximo). Son las 8 de `pre_fix`, las 3 de `post_fix` y la de `f7`: cada
+acto se sube con categoría distinta a propósito, porque lo que se demuestra es
+el delta entre ellos —**8 → 3 → 1** sobre el mismo repositorio—, no un conteo.
 
 Como hook de pre-commit, el instrumento audita los documentos que terminen en
 `.fsm.json`:
@@ -230,7 +244,7 @@ Como hook de pre-commit, el instrumento audita los documentos que terminen en
 ```yaml
 repos:
   - repo: https://github.com/alexisromtz-lab/fsm-ledger-guard
-    rev: v0.1.0
+    rev: v0.1.1
     hooks: [{ id: fsm-ledger-guard }]
 ```
 
@@ -241,7 +255,7 @@ python -m unittest discover -s tests -t tests -v
 python -m fsm_ledger_guard scan tests/fixtures/studio_city_pre_fix.json
 ```
 
-Los artefactos ya generados de los tres actos están en [`evidence/`](evidence).
+Los artefactos ya generados de los actos están en [`evidence/`](evidence).
 
 ## Licencia
 

@@ -1,4 +1,7 @@
-"""Los tres fixtures son la evidencia pública: se afirma su contenido exacto.
+"""Los cuatro fixtures son la evidencia pública: se afirma su contenido exacto.
+
+Los tres primeros son el mismo repositorio en tres commits (el delta medido
+8 -> 3 -> 1); el cuarto es una proyección y se declara no medida.
 
 Si un fixture cambia porque el motor cambió de criterio, este test lo dice antes
 de que el cambio llegue al README.
@@ -14,6 +17,7 @@ from fsm_ledger_guard.dsl import cargar
 
 PRE = FIXTURES / "studio_city_pre_fix.json"
 POST = FIXTURES / "studio_city_post_fix.json"
+F7 = FIXTURES / "studio_city_f7.json"
 OBJETIVO = FIXTURES / "studio_city_objetivo.json"
 
 
@@ -91,6 +95,32 @@ class StudioCityPostFixTest(unittest.TestCase):
 
     def test_procedencia(self):
         self.assertEqual(cargar(str(POST)).procedencia["commit"], "e67b9d5a")
+
+
+class StudioCityF7Test(unittest.TestCase):
+    """HEAD 251aaff8: la deuda ya tiene clave de idempotencia; falta la salida."""
+
+    def setUp(self):
+        self.grafo = cargar(str(F7))
+        self.resultado = auditar(self.grafo)
+        self.reglas = sorted(h.regla for h in self.resultado.hallazgos)
+
+    def test_rc_1_con_un_solo_hallazgo(self):
+        self.assertEqual(self.resultado.rc, RC_HALLAZGO)
+        self.assertEqual(self.reglas, ["FSM006"])
+
+    def test_el_cobro_declara_su_clave_de_idempotencia(self):
+        aristas = [t for t in self.grafo.transiciones if t.id in ("P3", "P4")]
+        self.assertEqual(len(aristas), 2)
+        for arista in aristas:
+            self.assertEqual(arista.idem_key, "reserva_id+estudio_id+concepto")
+
+    def test_el_residual_es_el_escrow(self):
+        self.assertEqual(self.resultado.hallazgos[0].detalle["recurso"], "escrow")
+
+    def test_es_medido_en_el_commit_del_parche(self):
+        self.assertEqual(self.grafo.procedencia["commit"], "251aaff8")
+        self.assertTrue(self.grafo.medido)
 
 
 class StudioCityObjetivoTest(unittest.TestCase):
