@@ -311,17 +311,19 @@ exige `1 / 1 / 1 / 0` para Studio City, `1 / 0` para Moon & Rain y `1 / 0` para
 el caso público, que antes regenera con `--check`: un fixture que no es lo que el
 código produce no llega a auditarse.
 
-Medición viva, 26-Nov-2026 @ `c6a21fe`, corrida 45747913228: la pestaña
-Security de este repositorio publica **15 alertas** — `FSM001`×2 (el ciclo de
-dos aristas), `FSM002`×1 y `FSM004`×1 (el estado sin escritor y el componente
-sin salida de Moon & Rain), `FSM006`×4 (el escrow de cada acto posterior al
-parche, más el importe retenido de la tienda), `FSM008`×4 (idempotencia),
-`FSM009`×2 (unidades) y `FSM011`×1 (cupo por encima de su máximo). Son las 8 de
-`pre_fix`, las 3 de `post_fix`, la de `f7` y las 3 de `tienda-pre_fix`: cada
-acto se sube con categoría distinta a propósito, porque lo que se demuestra es
-el delta entre ellos —**8 → 3 → 1** sobre Studio City y **3 → 0** sobre Moon &
-Rain—, no un conteo. `tienda-post_fix` no aporta ninguna: el parche cerró los
-tres y el motor no cambió.
+Medición viva, 26-Nov-2026 @ `92d8d8d`, corrida 45752250121: la pestaña
+Security de este repositorio publica **28 alertas** — `FSM008`×10 (idempotencia),
+`FSM006`×4 (el escrow de cada acto posterior al parche, más el importe retenido
+de la tienda), `FSM005`×4, `FSM001`×3 (los ciclos de dos aristas), `FSM011`×2
+(cupo por encima de su máximo), `FSM009`×2 (unidades), `FSM010`×1, `FSM004`×1 y
+`FSM002`×1 (el estado sin escritor y el componente sin salida de Moon & Rain).
+Son las 8 de `pre_fix`, las 3 de `post_fix`, la de `f7`, las 3 de
+`tienda-pre_fix` y las **13 del caso público**: cada acto se sube con categoría
+distinta a propósito, porque lo que se demuestra es el delta entre ellos
+—**8 → 3 → 1** sobre Studio City, **3 → 0** sobre Moon & Rain y **13 → 0** sobre
+el ejemplo público—, no un conteo. Las categorías `post_fix`,
+`tienda-post_fix` y `referencia-post_fix` no aportan ninguna: los parches
+cerraron los hallazgos y el motor no cambió.
 
 Como hook de pre-commit, el instrumento audita los documentos que terminen en
 `.fsm.json`:
