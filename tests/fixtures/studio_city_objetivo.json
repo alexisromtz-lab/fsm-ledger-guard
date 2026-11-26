@@ -3,7 +3,9 @@
   "dominio": "studio-city/reservas",
   "inicial": "pendiente",
   "procedencia": {
-    "repo": "alexisromtz-lab/estudios-worker",
+    "repo": "alexisromtz-lab/letras-delespiritu",
+    "ruta": "estudios-worker",
+    "verificable_publicamente": false,
     "commit": "PROYECTADO",
     "medido": false,
     "nota": "No es el estado de ningun commit: es la proyeccion que cierra F1 y F7 sobre e67b9d5a. Anade el estado terminal 'reembolsado' con su arista de salida de escrow, y pone clave de idempotencia en los dos bordes de dinero. Se publica declarado como no medido: con --exigir-medido el resultado correcto es RC 2, no RC 0."

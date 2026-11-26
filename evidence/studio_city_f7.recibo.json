@@ -11,10 +11,10 @@
     "sin_guarda": 0,
     "unidad_inconsistente": 0
   },
-  "version": "0.1.0",
+  "version": "0.1.1",
   "digests": {
-    "entrada": "9a0fabcae7ab5cc7f565da80347fae779064a24c741a30c6f2144aad72e7feed",
-    "salida": "9e0c77625d802c0f2ac70dbdae45c657adeda52bc392858ece97b3cac86d8a1e"
+    "entrada": "fe67e96104e6a4ae542f7696e12f353a9aecbcedb5129d4b99997feb710c768b",
+    "salida": "bc8374777f5759ca1190b6aa412a840b707f22bb3a2e96fd103886be84b907df"
   },
   "declarado": {
     "conserva": true,
@@ -29,7 +29,9 @@
     "medido": true
   },
   "procedencia": {
-    "repo": "alexisromtz-lab/estudios-worker",
+    "repo": "alexisromtz-lab/letras-delespiritu",
+    "ruta": "estudios-worker",
+    "verificable_publicamente": false,
     "commit": "251aaff8",
     "medido": true,
     "nota": "Estado real tras el parche F7: crearPreferencia guarda la deuda (reserva_id, estudio_id, concepto) y reutiliza la preferencia viva en vez de acunar otra, asi que las aristas de dinero ya tienen clave de idempotencia. Lo unico que queda es F1: el dinero entra y ninguna transicion lo saca, porque 'reembolsado' no existe todavia."

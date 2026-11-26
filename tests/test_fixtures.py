@@ -151,3 +151,53 @@ class StudioCityObjetivoTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ProcedenciaTest(unittest.TestCase):
+    """La procedencia es una cita: tiene que resolver y tiene que poder leerse.
+
+    Medido 2026-11-26: los cuatro fixtures declaraban `alexisromtz-lab/estudios-worker`,
+    un repositorio que GitHub no resuelve, y `report.resumen` buscaba `fuente`
+    mientras los fixtures declaran `repo`: el resumen imprimia `? @ <commit>`.
+    Una procedencia que no se puede verificar publicamente se declara, no se omite.
+    """
+
+    def test_el_resumen_imprime_el_repositorio_declarado(self):
+        from fsm_ledger_guard.report import resumen
+
+        grafo = cargar(str(PRE))
+        linea = [l for l in resumen(auditar_archivo(PRE)).splitlines()
+                 if l.startswith("procedencia")]
+        self.assertEqual(len(linea), 1)
+        self.assertIn(grafo.procedencia["repo"], linea[0])
+        self.assertNotIn("procedencia ? ", linea[0])
+
+    def test_el_repositorio_es_el_que_aloja_el_codigo(self):
+        for ruta in (PRE, POST, F7, OBJETIVO):
+            procedencia = cargar(str(ruta)).procedencia
+            self.assertEqual(
+                procedencia["repo"], "alexisromtz-lab/letras-delespiritu", ruta.name
+            )
+            self.assertEqual(procedencia["ruta"], "estudios-worker", ruta.name)
+
+    def test_declara_que_el_repositorio_es_privado(self):
+        for ruta in (PRE, POST, F7, OBJETIVO):
+            self.assertFalse(
+                cargar(str(ruta)).procedencia["verificable_publicamente"], ruta.name
+            )
+
+    def test_el_readme_no_publica_salida_que_el_codigo_no_produce(self):
+        """El bloque `console` del README es una cita: se compara con la corrida real.
+
+        Medido 2026-11-26: el README mostraba `procedencia alexisromtz-lab/estudios-worker`
+        mientras el binario imprimia `procedencia ? @ 95ea4a71`. Documentar una
+        salida que no ocurre es la misma falta que citar un blob ajeno.
+        """
+        from pathlib import Path
+
+        from fsm_ledger_guard.report import resumen
+
+        readme = (FIXTURES.parent.parent / "README.md").read_text(encoding="utf-8")
+        for linea in resumen(auditar_archivo(PRE)).splitlines():
+            if linea.startswith(("procedencia", "grafo ")):
+                self.assertIn(linea, readme)

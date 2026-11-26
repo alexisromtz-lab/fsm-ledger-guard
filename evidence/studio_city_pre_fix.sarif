@@ -6,7 +6,7 @@
       "tool": {
         "driver": {
           "name": "fsm-ledger-guard",
-          "version": "0.1.0",
+          "version": "0.1.1",
           "informationUri": "https://github.com/alexisromtz-lab/fsm-ledger-guard",
           "rules": [
             {
@@ -161,7 +161,7 @@
                   "uri": "tests/fixtures/studio_city_pre_fix.json"
                 },
                 "region": {
-                  "startLine": 60
+                  "startLine": 62
                 }
               }
             }
@@ -218,7 +218,7 @@
                   "uri": "tests/fixtures/studio_city_pre_fix.json"
                 },
                 "region": {
-                  "startLine": 60
+                  "startLine": 62
                 }
               }
             }
@@ -275,7 +275,7 @@
                   "uri": "tests/fixtures/studio_city_pre_fix.json"
                 },
                 "region": {
-                  "startLine": 60
+                  "startLine": 62
                 }
               }
             }
@@ -316,7 +316,7 @@
                   "uri": "tests/fixtures/studio_city_pre_fix.json"
                 },
                 "region": {
-                  "startLine": 60
+                  "startLine": 62
                 }
               }
             }
@@ -351,7 +351,7 @@
                   "uri": "tests/fixtures/studio_city_pre_fix.json"
                 },
                 "region": {
-                  "startLine": 75
+                  "startLine": 77
                 }
               }
             }
@@ -386,7 +386,7 @@
                   "uri": "tests/fixtures/studio_city_pre_fix.json"
                 },
                 "region": {
-                  "startLine": 60
+                  "startLine": 62
                 }
               }
             }
@@ -426,7 +426,7 @@
                   "uri": "tests/fixtures/studio_city_pre_fix.json"
                 },
                 "region": {
-                  "startLine": 75
+                  "startLine": 77
                 }
               }
             }
@@ -466,7 +466,7 @@
                   "uri": "tests/fixtures/studio_city_pre_fix.json"
                 },
                 "region": {
-                  "startLine": 90
+                  "startLine": 92
                 }
               }
             }
@@ -510,7 +510,7 @@
       ],
       "properties": {
         "dominio": "studio-city/reservas",
-        "huella_del_grafo": "2cf20a52cd9a9fd7bbe53834c615ffa0f9bb904bf7b4f48f4210147e2844c59a"
+        "huella_del_grafo": "a0e28f6069fa66570edb077dbcc8532aaf3cf6f4e8c478001ca8fa5ca5f28cea"
       }
     }
   ]

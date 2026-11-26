@@ -3,7 +3,9 @@
   "dominio": "studio-city/reservas",
   "inicial": "pendiente",
   "procedencia": {
-    "repo": "alexisromtz-lab/estudios-worker",
+    "repo": "alexisromtz-lab/letras-delespiritu",
+    "ruta": "estudios-worker",
+    "verificable_publicamente": false,
     "commit": "e67b9d5a",
     "medido": true,
     "nota": "Estado real de la maquina de pagos tras el parche de origen (ORIGENES_VALIDOS con compare-and-swap devolviendo 409) y de unidades (Math.round(montoMxn*100) en crearPreferencia). P9 ya no existe: 'pendiente' no es alcanzable desde 'pagada'. El ciclo con fuga desaparece y el recurso retenido de F1 queda visible como el hallazgo dominante."

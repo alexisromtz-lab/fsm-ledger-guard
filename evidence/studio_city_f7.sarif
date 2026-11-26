@@ -6,7 +6,7 @@
       "tool": {
         "driver": {
           "name": "fsm-ledger-guard",
-          "version": "0.1.0",
+          "version": "0.1.1",
           "informationUri": "https://github.com/alexisromtz-lab/fsm-ledger-guard",
           "rules": [
             {
@@ -65,7 +65,7 @@
                   "uri": "tests/fixtures/studio_city_f7.json"
                 },
                 "region": {
-                  "startLine": 60
+                  "startLine": 62
                 }
               }
             }
@@ -95,7 +95,7 @@
       ],
       "properties": {
         "dominio": "studio-city/reservas",
-        "huella_del_grafo": "9a0fabcae7ab5cc7f565da80347fae779064a24c741a30c6f2144aad72e7feed"
+        "huella_del_grafo": "fe67e96104e6a4ae542f7696e12f353a9aecbcedb5129d4b99997feb710c768b"
       }
     }
   ]

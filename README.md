@@ -15,16 +15,26 @@ recomputa por su cuenta.
 ```console
 $ fsm-ledger-guard scan mi-flujo.json
 dominio   studio-city/reservas
-procedencia alexisromtz-lab/estudios-worker @ 95ea4a71
-grafo     5 estados · 13 transiciones · huella 2cf20a52cd9a9fd7
+procedencia alexisromtz-lab/letras-delespiritu @ 95ea4a71
+grafo     5 estados · 13 transiciones · huella a0e28f6069fa6657
 
 [FSM001] error   CICLO_CON_FUGA
           escrow: el ciclo P9 → P3 tiene delta neto +350 centavos por vuelta; el saldo de confirmada, pagada, pendiente no está definido
           contraejemplo: P9 → P3
-          tests/fixtures/studio_city_pre_fix.json:60
+          tests/fixtures/studio_city_pre_fix.json:62
 …
 RC 1
 ```
+
+**Nota de procedencia.** El código auditado vive en un repositorio **privado**
+(`alexisromtz-lab/letras-delespiritu`, directorio `estudios-worker`), así que el
+commit no es verificable por un lector externo: por eso cada fixture declara
+`verificable_publicamente: false` en vez de omitirlo. Lo que sí es reproducible
+es el documento —el fixture es el estado del grafo, no una paráfrasis de él— y
+el comando que lo audita. `v0.1.2` corrigió esa cita: la versión anterior
+declaraba un repositorio que no resuelve, y como la huella del grafo cubre el
+documento completo, corregir la cita cambió las huellas publicadas. La cita se
+mide antes de escribirse; si no resuelve, no se publica.
 
 ## 1. Qué se demuestra, no qué se opina
 
@@ -245,7 +255,7 @@ Como hook de pre-commit, el instrumento audita los documentos que terminen en
 ```yaml
 repos:
   - repo: https://github.com/alexisromtz-lab/fsm-ledger-guard
-    rev: v0.1.1
+    rev: v0.1.2
     hooks: [{ id: fsm-ledger-guard }]
 ```
 

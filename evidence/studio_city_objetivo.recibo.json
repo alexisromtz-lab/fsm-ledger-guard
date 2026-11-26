@@ -11,9 +11,9 @@
     "sin_guarda": 0,
     "unidad_inconsistente": 0
   },
-  "version": "0.1.0",
+  "version": "0.1.1",
   "digests": {
-    "entrada": "186a2ac766aebcf9ebab8520814d77087f0c8ae06fb347d5a25675b262d2c5c1",
+    "entrada": "348d43b17c947bea368065253d86bf9f8bed063d422532140355f34f81d5bcf3",
     "salida": "25c9ea38e55d7d42a7f8aa700fd5d0c52e3a46888f9c349acf23381bfb3c602f"
   },
   "declarado": {
@@ -27,7 +27,9 @@
     "medido": false
   },
   "procedencia": {
-    "repo": "alexisromtz-lab/estudios-worker",
+    "repo": "alexisromtz-lab/letras-delespiritu",
+    "ruta": "estudios-worker",
+    "verificable_publicamente": false,
     "commit": "PROYECTADO",
     "medido": false,
     "nota": "No es el estado de ningun commit: es la proyeccion que cierra F1 y F7 sobre e67b9d5a. Anade el estado terminal 'reembolsado' con su arista de salida de escrow, y pone clave de idempotencia en los dos bordes de dinero. Se publica declarado como no medido: con --exigir-medido el resultado correcto es RC 2, no RC 0."

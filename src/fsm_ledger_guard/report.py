@@ -206,7 +206,7 @@ def resumen(resultado: Resultado) -> str:
     lineas: List[str] = []
     lineas.append(f"dominio   {grafo.dominio}")
     lineas.append(
-        f"procedencia {grafo.procedencia.get('fuente', '?')} @ "
+        f"procedencia {grafo.procedencia.get('repo') or grafo.procedencia.get('fuente') or '?'} @ "
         f"{grafo.procedencia.get('commit', '?')}"
         + ("" if grafo.medido else "   [PROYECCIÓN · NO MEDIDO]")
     )

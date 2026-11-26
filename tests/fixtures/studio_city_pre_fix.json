@@ -3,7 +3,9 @@
   "dominio": "studio-city/reservas",
   "inicial": "pendiente",
   "procedencia": {
-    "repo": "alexisromtz-lab/estudios-worker",
+    "repo": "alexisromtz-lab/letras-delespiritu",
+    "ruta": "estudios-worker",
+    "verificable_publicamente": false,
     "commit": "95ea4a71",
     "medido": true,
     "nota": "Modelo de las escrituras de estado y dinero de src/lib/reservas.js (setReservaEstado, ORIGENES_VALIDOS ausente) y src/pagos.js (crearPreferencia). Los lazos N1-N3 son escrituras no-op que el codigo permite: no mueven ningun recurso y no deben disparar ningun hallazgo. El recurso escrow modela la columna pagos.monto, declarada en centavos."

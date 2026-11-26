@@ -11,10 +11,10 @@
     "sin_guarda": 0,
     "unidad_inconsistente": 0
   },
-  "version": "0.1.0",
+  "version": "0.1.1",
   "digests": {
-    "entrada": "2cf20a52cd9a9fd7bbe53834c615ffa0f9bb904bf7b4f48f4210147e2844c59a",
-    "salida": "f3c17fc4071a36e1ea7827794e492fae3499919d567f4f74bf52415f41e1fc4c"
+    "entrada": "a0e28f6069fa66570edb077dbcc8532aaf3cf6f4e8c478001ca8fa5ca5f28cea",
+    "salida": "c8ed421e509907ca0eb727d6e217d55c55e684e131ea6d9feea3ddf4cf717339"
   },
   "declarado": {
     "conserva": true,
@@ -33,7 +33,9 @@
     "medido": true
   },
   "procedencia": {
-    "repo": "alexisromtz-lab/estudios-worker",
+    "repo": "alexisromtz-lab/letras-delespiritu",
+    "ruta": "estudios-worker",
+    "verificable_publicamente": false,
     "commit": "95ea4a71",
     "medido": true,
     "nota": "Modelo de las escrituras de estado y dinero de src/lib/reservas.js (setReservaEstado, ORIGENES_VALIDOS ausente) y src/pagos.js (crearPreferencia). Los lazos N1-N3 son escrituras no-op que el codigo permite: no mueven ningun recurso y no deben disparar ningun hallazgo. El recurso escrow modela la columna pagos.monto, declarada en centavos."

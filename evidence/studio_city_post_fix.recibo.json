@@ -11,10 +11,10 @@
     "sin_guarda": 2,
     "unidad_inconsistente": 0
   },
-  "version": "0.1.0",
+  "version": "0.1.1",
   "digests": {
-    "entrada": "9ccdd104b035373f08ae5f640a3493c4a086001b5f0f8deff30f105b675fb2ed",
-    "salida": "e767be992757bd692019f8c6f81f7b40b314ab716bbad12f22b94c0dc2bd3078"
+    "entrada": "40146fecf22a79ee31b6f1455ea554a211c10b6393d32c43c05862b6151e6f2c",
+    "salida": "3dab359982f4dab6de906ce3a8ad395522eb4d6241d66c928bf6e2e11ac7cb5c"
   },
   "declarado": {
     "conserva": true,
@@ -30,7 +30,9 @@
     "medido": true
   },
   "procedencia": {
-    "repo": "alexisromtz-lab/estudios-worker",
+    "repo": "alexisromtz-lab/letras-delespiritu",
+    "ruta": "estudios-worker",
+    "verificable_publicamente": false,
     "commit": "e67b9d5a",
     "medido": true,
     "nota": "Estado real de la maquina de pagos tras el parche de origen (ORIGENES_VALIDOS con compare-and-swap devolviendo 409) y de unidades (Math.round(montoMxn*100) en crearPreferencia). P9 ya no existe: 'pendiente' no es alcanzable desde 'pagada'. El ciclo con fuga desaparece y el recurso retenido de F1 queda visible como el hallazgo dominante."

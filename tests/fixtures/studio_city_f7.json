@@ -3,7 +3,9 @@
   "dominio": "studio-city/reservas",
   "inicial": "pendiente",
   "procedencia": {
-    "repo": "alexisromtz-lab/estudios-worker",
+    "repo": "alexisromtz-lab/letras-delespiritu",
+    "ruta": "estudios-worker",
+    "verificable_publicamente": false,
     "commit": "251aaff8",
     "medido": true,
     "nota": "Estado real tras el parche F7: crearPreferencia guarda la deuda (reserva_id, estudio_id, concepto) y reutiliza la preferencia viva en vez de acunar otra, asi que las aristas de dinero ya tienen clave de idempotencia. Lo unico que queda es F1: el dinero entra y ninguna transicion lo saca, porque 'reembolsado' no existe todavia."
