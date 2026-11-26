@@ -1,7 +1,7 @@
 # fsm-ledger-guard
 
 [![verify](https://github.com/alexisromtz-lab/fsm-ledger-guard/actions/workflows/verify.yml/badge.svg)](https://github.com/alexisromtz-lab/fsm-ledger-guard/actions/workflows/verify.yml)
-[![Code Scanning](https://img.shields.io/badge/Code%20Scanning-11%20alertas%20en%20vivo-blue)](https://github.com/alexisromtz-lab/fsm-ledger-guard/security/code-scanning)
+[![Code Scanning](https://img.shields.io/badge/Code%20Scanning-12%20alertas%20en%20vivo-blue)](https://github.com/alexisromtz-lab/fsm-ledger-guard/security/code-scanning)
 
 Auditoría **algebraica** de máquinas de estados financieras. Certifica, antes de
 desplegar, que un grafo de pagos, reservas o pedidos **no puede crear ni perder
@@ -231,8 +231,9 @@ esquema oficial `sarif-schema-2.1.0.json` con `jsonschema` (Draft-07): cero
 errores. `.github/workflows/verify.yml` audita los cuatro fixtures en cada push y
 exige `1 / 1 / 1 / 0`.
 
-Medición viva, 25-Nov-2026 @ `486c4ee`: la pestaña Security de este repositorio
-publica **11 alertas** — `FSM001`×2 (el ciclo de dos aristas), `FSM006`×2,
+Medición viva, 26-Nov-2026 @ `1c37c58`, corrida 45731712585: la pestaña
+Security de este repositorio publica **12 alertas** — `FSM001`×2 (el ciclo de
+dos aristas), `FSM006`×3 (el escrow de cada acto posterior al parche),
 `FSM008`×4 (idempotencia), `FSM009`×2 (unidades) y `FSM011`×1 (cupo por encima
 de su máximo). Son las 8 de `pre_fix`, las 3 de `post_fix` y la de `f7`: cada
 acto se sube con categoría distinta a propósito, porque lo que se demuestra es
