@@ -1,0 +1,142 @@
+{
+  "schema": "fsm-ledger/1",
+  "dominio": "ejemplo-publico/pedidos",
+  "inicial": "nuevo",
+  "procedencia": {
+    "repo": "alexisromtz-lab/fsm-ledger-guard",
+    "ruta": "examples/ecommerce_referencia/post_fix",
+    "verificable_publicamente": true,
+    "medido": true,
+    "commit": "huella:d798bde478b1",
+    "huella_fuentes": "sha256:d798bde478b164b7e4140fd093d5a03796a840cbccc57bc9a932da5dc96e3ec2",
+    "generado_por": "examples/ecommerce_referencia/extraer.py",
+    "fuentes": [
+      {
+        "archivo": "src/panel.js",
+        "linea": 5,
+        "funcion": "cancelarPedido",
+        "evento": "cancelar",
+        "guarda": "estado IN ('nuevo')",
+        "origenes": [
+          "nuevo"
+        ]
+      },
+      {
+        "archivo": "src/webhook.js",
+        "linea": 7,
+        "funcion": "marcarPagado",
+        "evento": "pagar",
+        "guarda": "estado IN ('nuevo')",
+        "origenes": [
+          "nuevo"
+        ]
+      },
+      {
+        "archivo": "src/webhook.js",
+        "linea": 12,
+        "funcion": "marcarEnviado",
+        "evento": "enviar",
+        "guarda": "estado IN ('pagado')",
+        "origenes": [
+          "pagado"
+        ]
+      },
+      {
+        "archivo": "src/webhook.js",
+        "linea": 19,
+        "funcion": "marcarDevuelto",
+        "evento": "reembolsar",
+        "guarda": "estado IN ('pagado','enviado')",
+        "origenes": [
+          "enviado",
+          "pagado"
+        ]
+      }
+    ],
+    "nota": "Reduccion publica del patron, no un tercer sistema en produccion: este arbol es codigo de referencia y existe para que el lector rehaga la medicion sin pedir acceso a los dos repositorios privados. Ninguna arista esta declarada a mano: el origen de cada una lo lee `examples/ecommerce_referencia/extraer.py` de la guarda escrita en el codigo, y el destino, el delta y la clave de idempotencia, de `maquina.json`. Un escritor sin guarda se expande a una arista desde cada estado declarado, terminales incluidos. El fixture se regenera con `python3 examples/ecommerce_referencia/extraer.py --arbol <arbol> --salida <ruta> --check`."
+  },
+  "recursos": {
+    "dinero": {
+      "unidad": "centavos",
+      "minimo": 0,
+      "maximo": 69900,
+      "saldo_inicial": 0,
+      "acumulativa": false
+    }
+  },
+  "estados": [
+    {
+      "nombre": "nuevo",
+      "terminal": false
+    },
+    {
+      "nombre": "pagado",
+      "terminal": false
+    },
+    {
+      "nombre": "enviado",
+      "terminal": false
+    },
+    {
+      "nombre": "devuelto",
+      "terminal": true
+    },
+    {
+      "nombre": "cancelado",
+      "terminal": true
+    }
+  ],
+  "transiciones": [
+    {
+      "id": "C1",
+      "de": "nuevo",
+      "evento": "cancelar",
+      "a": "cancelado",
+      "delta": {},
+      "atomico": true,
+      "idem_key": "pedido_id+estado_origen"
+    },
+    {
+      "id": "P1",
+      "de": "nuevo",
+      "evento": "pagar",
+      "a": "pagado",
+      "delta": {
+        "dinero": 69900
+      },
+      "atomico": true,
+      "idem_key": "pedido_id+estado_origen"
+    },
+    {
+      "id": "E2",
+      "de": "pagado",
+      "evento": "enviar",
+      "a": "enviado",
+      "delta": {},
+      "atomico": true,
+      "idem_key": "pedido_id+estado_origen"
+    },
+    {
+      "id": "R2",
+      "de": "pagado",
+      "evento": "reembolsar",
+      "a": "devuelto",
+      "delta": {
+        "dinero": -69900
+      },
+      "atomico": true,
+      "idem_key": "pedido_id+estado_origen"
+    },
+    {
+      "id": "R3",
+      "de": "enviado",
+      "evento": "reembolsar",
+      "a": "devuelto",
+      "delta": {
+        "dinero": -69900
+      },
+      "atomico": true,
+      "idem_key": "pedido_id+estado_origen"
+    }
+  ]
+}

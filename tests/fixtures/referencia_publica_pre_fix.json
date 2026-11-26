@@ -1,0 +1,228 @@
+{
+  "schema": "fsm-ledger/1",
+  "dominio": "ejemplo-publico/pedidos",
+  "inicial": "nuevo",
+  "procedencia": {
+    "repo": "alexisromtz-lab/fsm-ledger-guard",
+    "ruta": "examples/ecommerce_referencia/pre_fix",
+    "verificable_publicamente": true,
+    "medido": true,
+    "commit": "huella:b2e03a7914c0",
+    "huella_fuentes": "sha256:b2e03a7914c0938af7b29039ce4faafef35bdf85ac316e5e943938423c22f407",
+    "generado_por": "examples/ecommerce_referencia/extraer.py",
+    "fuentes": [
+      {
+        "archivo": "src/panel.js",
+        "linea": 6,
+        "funcion": "cancelarPedido",
+        "evento": "cancelar",
+        "guarda": "estado = 'nuevo'",
+        "origenes": [
+          "nuevo"
+        ]
+      },
+      {
+        "archivo": "src/webhook.js",
+        "linea": 10,
+        "funcion": "marcarPagado",
+        "evento": "pagar",
+        "guarda": "sin guarda",
+        "origenes": [
+          "nuevo",
+          "pagado",
+          "enviado",
+          "devuelto",
+          "cancelado"
+        ]
+      },
+      {
+        "archivo": "src/webhook.js",
+        "linea": 15,
+        "funcion": "marcarEnviado",
+        "evento": "enviar",
+        "guarda": "sin guarda",
+        "origenes": [
+          "nuevo",
+          "pagado",
+          "enviado",
+          "devuelto",
+          "cancelado"
+        ]
+      },
+      {
+        "archivo": "src/webhook.js",
+        "linea": 22,
+        "funcion": "marcarDevuelto",
+        "evento": "reembolsar",
+        "guarda": "estado = 'enviado'",
+        "origenes": [
+          "enviado"
+        ]
+      }
+    ],
+    "nota": "Reduccion publica del patron, no un tercer sistema en produccion: este arbol es codigo de referencia y existe para que el lector rehaga la medicion sin pedir acceso a los dos repositorios privados. Ninguna arista esta declarada a mano: el origen de cada una lo lee `examples/ecommerce_referencia/extraer.py` de la guarda escrita en el codigo, y el destino, el delta y la clave de idempotencia, de `maquina.json`. Un escritor sin guarda se expande a una arista desde cada estado declarado, terminales incluidos. El fixture se regenera con `python3 examples/ecommerce_referencia/extraer.py --arbol <arbol> --salida <ruta> --check`."
+  },
+  "recursos": {
+    "dinero": {
+      "unidad": "centavos",
+      "minimo": 0,
+      "maximo": 69900,
+      "saldo_inicial": 0,
+      "acumulativa": false
+    }
+  },
+  "estados": [
+    {
+      "nombre": "nuevo",
+      "terminal": false
+    },
+    {
+      "nombre": "pagado",
+      "terminal": false
+    },
+    {
+      "nombre": "enviado",
+      "terminal": false
+    },
+    {
+      "nombre": "devuelto",
+      "terminal": true
+    },
+    {
+      "nombre": "cancelado",
+      "terminal": true
+    }
+  ],
+  "transiciones": [
+    {
+      "id": "C1",
+      "de": "nuevo",
+      "evento": "cancelar",
+      "a": "cancelado",
+      "delta": {},
+      "atomico": true,
+      "idem_key": null
+    },
+    {
+      "id": "P1",
+      "de": "nuevo",
+      "evento": "pagar",
+      "a": "pagado",
+      "delta": {
+        "dinero": 69900
+      },
+      "atomico": true,
+      "idem_key": null,
+      "nota": "escritor sin guarda de origen: la arista existe desde cualquier estado declarado, incluidos los terminales"
+    },
+    {
+      "id": "P2",
+      "de": "pagado",
+      "evento": "pagar",
+      "a": "pagado",
+      "delta": {
+        "dinero": 69900
+      },
+      "atomico": true,
+      "idem_key": null,
+      "nota": "escritor sin guarda de origen: la arista existe desde cualquier estado declarado, incluidos los terminales"
+    },
+    {
+      "id": "P3",
+      "de": "enviado",
+      "evento": "pagar",
+      "a": "pagado",
+      "delta": {
+        "dinero": 69900
+      },
+      "atomico": true,
+      "idem_key": null,
+      "nota": "escritor sin guarda de origen: la arista existe desde cualquier estado declarado, incluidos los terminales"
+    },
+    {
+      "id": "P4",
+      "de": "devuelto",
+      "evento": "pagar",
+      "a": "pagado",
+      "delta": {
+        "dinero": 69900
+      },
+      "atomico": true,
+      "idem_key": null,
+      "nota": "escritor sin guarda de origen: la arista existe desde cualquier estado declarado, incluidos los terminales"
+    },
+    {
+      "id": "P5",
+      "de": "cancelado",
+      "evento": "pagar",
+      "a": "pagado",
+      "delta": {
+        "dinero": 69900
+      },
+      "atomico": true,
+      "idem_key": null,
+      "nota": "escritor sin guarda de origen: la arista existe desde cualquier estado declarado, incluidos los terminales"
+    },
+    {
+      "id": "E1",
+      "de": "nuevo",
+      "evento": "enviar",
+      "a": "enviado",
+      "delta": {},
+      "atomico": true,
+      "idem_key": null,
+      "nota": "escritor sin guarda de origen: la arista existe desde cualquier estado declarado, incluidos los terminales"
+    },
+    {
+      "id": "E2",
+      "de": "pagado",
+      "evento": "enviar",
+      "a": "enviado",
+      "delta": {},
+      "atomico": true,
+      "idem_key": null,
+      "nota": "escritor sin guarda de origen: la arista existe desde cualquier estado declarado, incluidos los terminales"
+    },
+    {
+      "id": "E3",
+      "de": "enviado",
+      "evento": "enviar",
+      "a": "enviado",
+      "delta": {},
+      "atomico": true,
+      "idem_key": null,
+      "nota": "escritor sin guarda de origen: la arista existe desde cualquier estado declarado, incluidos los terminales"
+    },
+    {
+      "id": "E4",
+      "de": "devuelto",
+      "evento": "enviar",
+      "a": "enviado",
+      "delta": {},
+      "atomico": true,
+      "idem_key": null,
+      "nota": "escritor sin guarda de origen: la arista existe desde cualquier estado declarado, incluidos los terminales"
+    },
+    {
+      "id": "E5",
+      "de": "cancelado",
+      "evento": "enviar",
+      "a": "enviado",
+      "delta": {},
+      "atomico": true,
+      "idem_key": null,
+      "nota": "escritor sin guarda de origen: la arista existe desde cualquier estado declarado, incluidos los terminales"
+    },
+    {
+      "id": "R3",
+      "de": "enviado",
+      "evento": "reembolsar",
+      "a": "devuelto",
+      "delta": {
+        "dinero": -69900
+      },
+      "atomico": true,
+      "idem_key": null
+    }
+  ]
+}

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fsm-ledger-guard"
-version = "0.1.3"
+version = "0.1.4"
 description = "Auditoría algebraica de máquinas de estados financieras: ciclos con fuga, recursos retenidos y conservación de saldo"
 readme = "README.md"
 requires-python = ">=3.9"

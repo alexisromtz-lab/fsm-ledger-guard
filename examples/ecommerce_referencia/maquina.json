@@ -1,0 +1,42 @@
+{
+  "schema": "ejemplo-declarado/1",
+  "dominio": "ejemplo-publico/pedidos",
+  "repo": "alexisromtz-lab/fsm-ledger-guard",
+  "inicial": "nuevo",
+  "estados": [
+    {"nombre": "nuevo", "terminal": false},
+    {"nombre": "pagado", "terminal": false},
+    {"nombre": "enviado", "terminal": false},
+    {"nombre": "devuelto", "terminal": true},
+    {"nombre": "cancelado", "terminal": true}
+  ],
+  "recursos": {
+    "dinero": {
+      "unidad": "centavos",
+      "minimo": 0,
+      "maximo": 69900,
+      "saldo_inicial": 0,
+      "acumulativa": false
+    }
+  },
+  "eventos": {
+    "pagar": {"letra": "P", "delta": {"dinero": 69900}},
+    "enviar": {"letra": "E", "delta": {}},
+    "reembolsar": {"letra": "R", "delta": {"dinero": -69900}},
+    "cancelar": {"letra": "C", "delta": {}}
+  },
+  "escritores": {
+    "pre_fix": {
+      "src/panel.js::cancelarPedido": {"evento": "cancelar", "atomico": true, "idem_key": null},
+      "src/webhook.js::marcarPagado": {"evento": "pagar", "atomico": true, "idem_key": null},
+      "src/webhook.js::marcarEnviado": {"evento": "enviar", "atomico": true, "idem_key": null},
+      "src/webhook.js::marcarDevuelto": {"evento": "reembolsar", "atomico": true, "idem_key": null}
+    },
+    "post_fix": {
+      "src/panel.js::cancelarPedido": {"evento": "cancelar", "atomico": true, "idem_key": "pedido_id+estado_origen"},
+      "src/webhook.js::marcarPagado": {"evento": "pagar", "atomico": true, "idem_key": "pedido_id+estado_origen"},
+      "src/webhook.js::marcarEnviado": {"evento": "enviar", "atomico": true, "idem_key": "pedido_id+estado_origen"},
+      "src/webhook.js::marcarDevuelto": {"evento": "reembolsar", "atomico": true, "idem_key": "pedido_id+estado_origen"}
+    }
+  }
+}

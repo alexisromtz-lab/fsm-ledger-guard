@@ -150,6 +150,36 @@ cancelaciones —otro vocabulario, otra base de datos, otro equipo— y el vered
 lo produce el mismo conjunto de reglas. Eso es lo que se compra: no un chequeo de
 Mercado Pago, sino un invariante sobre el grafo.
 
+## 2 ter. El séptimo caso: público, y el fixture sale del código
+
+Los seis fixtures anteriores declaran `verificable_publicamente: false`: el
+delta de alertas se ve, el código detrás no. `v0.1.4` cierra esa brecha con
+[`examples/ecommerce_referencia/`](examples/ecommerce_referencia), donde el
+fixture **no está transcrito a mano**: lo emite un extractor que lee las
+sentencias `UPDATE … SET estado = …` de dos árboles de código versionados en
+este mismo repositorio y deriva de cada `WHERE` el estado de origen de la arista.
+
+| árbol | transiciones | RC | hallazgos |
+|---|---|---|---|
+| [`referencia_publica_pre_fix.json`](tests/fixtures/referencia_publica_pre_fix.json) | 12 | **1** | **13**: `FSM001`×1, `FSM005`×4, `FSM008`×6, `FSM010`×1, `FSM011`×1 |
+| [`referencia_publica_post_fix.json`](tests/fixtures/referencia_publica_post_fix.json) | 5 | **0** | ninguno; conservación cerrada (frontera 0) |
+
+Los trece salen de **un** `WHERE` ausente. Sin guarda de origen, `marcarPagado`
+tiene una arista hacia sí mismo con `+69900` y el ciclo es `P2` —el mismo webhook
+entregado dos veces cobra dos veces—; las cinco aristas de `pagar` más la de
+`reembolsar` mueven dinero sin clave de idempotencia (`FSM008`×6, uno por arista
+y no por función); con el ciclo abierto el saldo llega a `-69900` (`E1 → R3`) y a
+`+139800` (`P1 → P2`). En `post_fix` la guarda **es** la clave: la segunda
+entrega afecta cero filas y la conservación cierra con cinco estados de saldo.
+
+**Lo que se puede comprobar sin confiar en este README.** El extractor no importa
+el motor (`tests/test_extraer.py` lo prohíbe), el CI regenera con `--check` y
+falla si el fixture commiteado no es lo que el código produce, y si un escritor
+no está declarado o su guarda no se puede leer el resultado es `RC 2` con
+`archivo:línea` —nunca una arista inventada—. `procedencia.verificable_publicamente`
+es `true` porque las dos entradas de la medición —código y declaración— viajan
+en el repositorio. Detalle y límites: [`examples/ecommerce_referencia/README.md`](examples/ecommerce_referencia/README.md).
+
 ## 3. Uso
 
 ```console
@@ -276,8 +306,10 @@ Cada resultado lleva `ruleId` (`FSM001`…), `level`, la línea del fixture,
 `partialFingerprints` estable entre corridas y, en `properties`, el
 `contraejemplo` completo. Los archivos de `evidence/` se validaron contra el
 esquema oficial `sarif-schema-2.1.0.json` con `jsonschema` (Draft-07): cero
-errores. `.github/workflows/verify.yml` audita los seis fixtures en cada push y
-exige `1 / 1 / 1 / 0` para Studio City y `1 / 0` para Moon & Rain.
+errores. `.github/workflows/verify.yml` audita los ocho fixtures en cada push y
+exige `1 / 1 / 1 / 0` para Studio City, `1 / 0` para Moon & Rain y `1 / 0` para
+el caso público, que antes regenera con `--check`: un fixture que no es lo que el
+código produce no llega a auditarse.
 
 Medición viva, 26-Nov-2026 @ `c6a21fe`, corrida 45747913228: la pestaña
 Security de este repositorio publica **15 alertas** — `FSM001`×2 (el ciclo de
@@ -297,7 +329,7 @@ Como hook de pre-commit, el instrumento audita los documentos que terminen en
 ```yaml
 repos:
   - repo: https://github.com/alexisromtz-lab/fsm-ledger-guard
-    rev: v0.1.3
+    rev: v0.1.4
     hooks: [{ id: fsm-ledger-guard }]
 ```
 
@@ -307,6 +339,11 @@ repos:
 python -m unittest discover -s tests -t tests -v
 python -m fsm_ledger_guard scan tests/fixtures/studio_city_pre_fix.json
 python -m fsm_ledger_guard scan tests/fixtures/moon_and_rain_pre_fix.json
+
+# el caso público: el fixture se vuelve a extraer del código antes de auditarlo
+python examples/ecommerce_referencia/extraer.py --arbol pre_fix \
+  --salida /tmp/ref_pre.json && diff /tmp/ref_pre.json tests/fixtures/referencia_publica_pre_fix.json
+python -m fsm_ledger_guard scan tests/fixtures/referencia_publica_pre_fix.json
 ```
 
 Los artefactos ya generados de los actos están en [`evidence/`](evidence).

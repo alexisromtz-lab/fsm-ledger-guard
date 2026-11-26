@@ -48,6 +48,12 @@ jobs:
           python-version: "3.12"
       - name: Install
         run: python -m pip install --upgrade pip && python -m pip install -e .
+      - name: El fixture del ejemplo sale del codigo, no al reves
+        run: |
+          python examples/ecommerce_referencia/extraer.py --arbol pre_fix \
+            --salida tests/fixtures/referencia_publica_pre_fix.json --check
+          python examples/ecommerce_referencia/extraer.py --arbol post_fix \
+            --salida tests/fixtures/referencia_publica_post_fix.json --check
       - name: Audit the public fixtures
         run: |
           set +e
@@ -69,9 +75,16 @@ jobs:
           fsm-ledger-guard scan tests/fixtures/moon_and_rain_post_fix.json \
             --sarif out/moon_and_rain_post_fix.sarif --recibo out/moon_and_rain_post_fix.recibo.json
           tienda_post=$?
-          echo "pre_fix=$pre post_fix=$post f7=$f7 objetivo=$objetivo tienda_pre=$tienda_pre tienda_post=$tienda_post"
+          fsm-ledger-guard scan tests/fixtures/referencia_publica_pre_fix.json \
+            --sarif out/referencia_publica_pre_fix.sarif --recibo out/referencia_publica_pre_fix.recibo.json
+          ref_pre=$?
+          fsm-ledger-guard scan tests/fixtures/referencia_publica_post_fix.json \
+            --sarif out/referencia_publica_post_fix.sarif --recibo out/referencia_publica_post_fix.recibo.json
+          ref_post=$?
+          echo "pre_fix=$pre post_fix=$post f7=$f7 objetivo=$objetivo tienda_pre=$tienda_pre tienda_post=$tienda_post ref_pre=$ref_pre ref_post=$ref_post"
           test "$pre" = 1 && test "$post" = 1 && test "$f7" = 1 && test "$objetivo" = 0 \
-            && test "$tienda_pre" = 1 && test "$tienda_post" = 0
+            && test "$tienda_pre" = 1 && test "$tienda_post" = 0 \
+            && test "$ref_pre" = 1 && test "$ref_post" = 0
       # Una categoria por corrida: el Action rechaza varios runs bajo la misma.
       - name: Upload SARIF (pre_fix)
         if: always()
@@ -109,6 +122,18 @@ jobs:
         with:
           sarif_file: out/moon_and_rain_post_fix.sarif
           category: fsm-ledger-guard/tienda-post_fix
+      - name: Upload SARIF (referencia publica pre_fix)
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: out/referencia_publica_pre_fix.sarif
+          category: fsm-ledger-guard/referencia-pre_fix
+      - name: Upload SARIF (referencia publica post_fix)
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: out/referencia_publica_post_fix.sarif
+          category: fsm-ledger-guard/referencia-post_fix
       - uses: actions/upload-artifact@v4
         if: always()
         with:
