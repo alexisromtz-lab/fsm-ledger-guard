@@ -2,7 +2,7 @@
 
 [![verify](https://github.com/alexisromtz-lab/fsm-ledger-guard/actions/workflows/verify.yml/badge.svg)](https://github.com/alexisromtz-lab/fsm-ledger-guard/actions/workflows/verify.yml)
 [![Code Scanning](https://img.shields.io/badge/Code%20Scanning-12%20alertas%20en%20vivo-blue)](https://github.com/alexisromtz-lab/fsm-ledger-guard/security/code-scanning)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24546808.svg)](https://doi.org/10.5281/zenodo.24546808)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24546807.svg)](https://doi.org/10.5281/zenodo.24546807)
 
 Auditoría **algebraica** de máquinas de estados financieras. Certifica, antes de
 desplegar, que un grafo de pagos, reservas o pedidos **no puede crear ni perder
@@ -352,24 +352,32 @@ Los artefactos ya generados de los actos están en [`evidence/`](evidence).
 
 ## 9. Cómo citar
 
-El paquete depositado es **v0.1.2** con su evidencia. Se cita por DOI, no por el repositorio: el
-repositorio cambia y el depósito no.
+El paquete depositado es **v0.1.4** con su evidencia. Se cita por DOI, no por el repositorio: el
+repositorio cambia y el depósito no. Hay dos DOI y sirven a cosas distintas:
 
-> Román Martínez, José Alexis (2026). *alexisromtz-lab/fsm-ledger-guard: v0.1.2 — de ocho hallazgos
-> a uno en una máquina de estados de pagos* [Software]. Zenodo.
-> <https://doi.org/10.5281/zenodo.24546808>
+- **Concepto** — `10.5281/zenodo.24546807` — resuelve **siempre a la última versión**. Úsalo para
+  decir «este software existe» (es el del escudo de arriba).
+- **Versión** — `10.5281/zenodo.24548850` — fija **v0.1.4**, lo que efectivamente se leyó. Úsalo
+  en una cita.
+
+> Román Martínez, José Alexis (2026). *alexisromtz-lab/fsm-ledger-guard: v0.1.4 — el caso público
+> cuyo fixture se extrae del código, no se transcribe* [Software]. Zenodo.
+> <https://doi.org/10.5281/zenodo.24548850>
 
 ```bibtex
-@software{fsm_ledger_guard_012,
+@software{fsm_ledger_guard_014,
   author    = {Román Martínez, José Alexis},
-  title     = {alexisromtz-lab/fsm-ledger-guard: v0.1.2 --- de ocho hallazgos a uno
-               en una máquina de estados de pagos},
+  title     = {alexisromtz-lab/fsm-ledger-guard: v0.1.4 --- el caso público cuyo
+               fixture se extrae del código, no se transcribe},
   year      = 2026,
   publisher = {Zenodo},
-  doi       = {10.5281/zenodo.24546808},
-  url       = {https://doi.org/10.5281/zenodo.24546808}
+  doi       = {10.5281/zenodo.24548850},
+  url       = {https://doi.org/10.5281/zenodo.24548850}
 }
 ```
+
+La primera versión depositada (**v0.1.2**, la pieza «de ocho hallazgos a uno») sigue disponible y no
+se retira: `10.5281/zenodo.24546808`.
 
 ## Licencia
 
