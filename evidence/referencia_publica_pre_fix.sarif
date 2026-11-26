@@ -1,0 +1,665 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "fsm-ledger-guard",
+          "version": "0.1.4",
+          "informationUri": "https://github.com/alexisromtz-lab/fsm-ledger-guard",
+          "rules": [
+            {
+              "id": "FSM001",
+              "name": "CICLO_CON_FUGA",
+              "shortDescription": {
+                "text": "Ciclo con delta neto distinto de cero"
+              },
+              "fullDescription": {
+                "text": "No existe potencial de saldo para el recurso: el ciclo puede crear o destruir unidades sin límite (pago duplicado, devolución duplicada)."
+              },
+              "help": {
+                "text": "No existe potencial de saldo para el recurso: el ciclo puede crear o destruir unidades sin límite (pago duplicado, devolución duplicada)."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "fsm",
+                  "financial-conservation",
+                  "money"
+                ],
+                "precision": "very-high"
+              }
+            },
+            {
+              "id": "FSM005",
+              "name": "TERMINAL_CON_SALIDA",
+              "shortDescription": {
+                "text": "Estado declarado terminal con aristas de salida"
+              },
+              "fullDescription": {
+                "text": "La declaración y el grafo se contradicen; una de las dos miente."
+              },
+              "help": {
+                "text": "La declaración y el grafo se contradicen; una de las dos miente."
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "tags": [
+                  "fsm",
+                  "financial-conservation",
+                  "money"
+                ],
+                "precision": "very-high"
+              }
+            },
+            {
+              "id": "FSM008",
+              "name": "MOVIMIENTO_SIN_IDEM",
+              "shortDescription": {
+                "text": "Transición que mueve un recurso sin clave de idempotencia"
+              },
+              "fullDescription": {
+                "text": "Sin clave de idempotencia, el mismo evento aplicado dos veces mueve el recurso dos veces."
+              },
+              "help": {
+                "text": "Sin clave de idempotencia, el mismo evento aplicado dos veces mueve el recurso dos veces."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "fsm",
+                  "financial-conservation",
+                  "money"
+                ],
+                "precision": "very-high"
+              }
+            },
+            {
+              "id": "FSM010",
+              "name": "SALDO_NEGATIVO",
+              "shortDescription": {
+                "text": "Saldo por debajo del mínimo en una ruta alcanzable"
+              },
+              "fullDescription": {
+                "text": "El grafo permite extraer un recurso que no se tiene."
+              },
+              "help": {
+                "text": "El grafo permite extraer un recurso que no se tiene."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "fsm",
+                  "financial-conservation",
+                  "money"
+                ],
+                "precision": "very-high"
+              }
+            },
+            {
+              "id": "FSM011",
+              "name": "COTA_EXCEDIDA",
+              "shortDescription": {
+                "text": "Saldo por encima del máximo declarado"
+              },
+              "fullDescription": {
+                "text": "El recurso se acumula por encima de lo que el dominio admite: la misma reserva cobrada más de una vez."
+              },
+              "help": {
+                "text": "El recurso se acumula por encima de lo que el dominio admite: la misma reserva cobrada más de una vez."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "fsm",
+                  "financial-conservation",
+                  "money"
+                ],
+                "precision": "very-high"
+              }
+            }
+          ]
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true,
+          "properties": {
+            "rc": 1,
+            "cobertura": {
+              "alcanzabilidad": "MEDIDO",
+              "retencion:dinero": "NO_MEDIDO: el saldo no está definido (FSM001); la retención se puede medir cuando el ciclo se cierre",
+              "guardas": "MEDIDO",
+              "conservacion": "NO_MEDIDO: frontera abierta en profundidad 8"
+            }
+          }
+        }
+      ],
+      "results": [
+        {
+          "ruleId": "FSM001",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "dinero: el ciclo P2 tiene delta neto +69900 centavos por vuelta; el saldo de devuelto, enviado, pagado no está definido"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/fixtures/referencia_publica_pre_fix.json"
+                },
+                "region": {
+                  "startLine": 119
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "fsmLedgerGuard/v1": "9f35034b4c7e0949"
+          },
+          "properties": {
+            "clase": "CICLO_CON_FUGA",
+            "transiciones": [
+              "P2"
+            ],
+            "estados": [
+              "devuelto",
+              "enviado",
+              "pagado"
+            ],
+            "contraejemplo": [
+              "P2"
+            ],
+            "detalle": {
+              "recurso": "dinero",
+              "delta_neto": 69900,
+              "unidad": "centavos",
+              "aristas_scc": [
+                "P2",
+                "P3",
+                "P4",
+                "E2",
+                "E3",
+                "E4",
+                "R3"
+              ],
+              "estados_scc": [
+                "devuelto",
+                "enviado",
+                "pagado"
+              ]
+            }
+          }
+        },
+        {
+          "ruleId": "FSM005",
+          "ruleIndex": 1,
+          "level": "warning",
+          "message": {
+            "text": "el estado 'devuelto' está declarado terminal y la transición P4 lo abandona hacia 'pagado'"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/fixtures/referencia_publica_pre_fix.json"
+                },
+                "region": {
+                  "startLine": 143
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "fsmLedgerGuard/v1": "601010aa4dc09408"
+          },
+          "properties": {
+            "clase": "TERMINAL_CON_SALIDA",
+            "transiciones": [
+              "P4"
+            ],
+            "estados": [
+              "devuelto",
+              "pagado"
+            ],
+            "contraejemplo": [],
+            "detalle": {}
+          }
+        },
+        {
+          "ruleId": "FSM005",
+          "ruleIndex": 1,
+          "level": "warning",
+          "message": {
+            "text": "el estado 'cancelado' está declarado terminal y la transición P5 lo abandona hacia 'pagado'"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/fixtures/referencia_publica_pre_fix.json"
+                },
+                "region": {
+                  "startLine": 155
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "fsmLedgerGuard/v1": "9a1546d160eb2b1a"
+          },
+          "properties": {
+            "clase": "TERMINAL_CON_SALIDA",
+            "transiciones": [
+              "P5"
+            ],
+            "estados": [
+              "cancelado",
+              "pagado"
+            ],
+            "contraejemplo": [],
+            "detalle": {}
+          }
+        },
+        {
+          "ruleId": "FSM005",
+          "ruleIndex": 1,
+          "level": "warning",
+          "message": {
+            "text": "el estado 'devuelto' está declarado terminal y la transición E4 lo abandona hacia 'enviado'"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/fixtures/referencia_publica_pre_fix.json"
+                },
+                "region": {
+                  "startLine": 197
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "fsmLedgerGuard/v1": "1e5932abb0ca20b5"
+          },
+          "properties": {
+            "clase": "TERMINAL_CON_SALIDA",
+            "transiciones": [
+              "E4"
+            ],
+            "estados": [
+              "devuelto",
+              "enviado"
+            ],
+            "contraejemplo": [],
+            "detalle": {}
+          }
+        },
+        {
+          "ruleId": "FSM005",
+          "ruleIndex": 1,
+          "level": "warning",
+          "message": {
+            "text": "el estado 'cancelado' está declarado terminal y la transición E5 lo abandona hacia 'enviado'"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/fixtures/referencia_publica_pre_fix.json"
+                },
+                "region": {
+                  "startLine": 207
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "fsmLedgerGuard/v1": "12d6101b733366ed"
+          },
+          "properties": {
+            "clase": "TERMINAL_CON_SALIDA",
+            "transiciones": [
+              "E5"
+            ],
+            "estados": [
+              "cancelado",
+              "enviado"
+            ],
+            "contraejemplo": [],
+            "detalle": {}
+          }
+        },
+        {
+          "ruleId": "FSM008",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "P1 mueve dinero+69900 sin clave de idempotencia: el mismo evento aplicado dos veces mueve el recurso dos veces"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/fixtures/referencia_publica_pre_fix.json"
+                },
+                "region": {
+                  "startLine": 107
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "fsmLedgerGuard/v1": "510f1e9221f09ed3"
+          },
+          "properties": {
+            "clase": "MOVIMIENTO_SIN_IDEM",
+            "transiciones": [
+              "P1"
+            ],
+            "estados": [
+              "nuevo",
+              "pagado"
+            ],
+            "contraejemplo": [],
+            "detalle": {}
+          }
+        },
+        {
+          "ruleId": "FSM008",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "P2 mueve dinero+69900 sin clave de idempotencia: el mismo evento aplicado dos veces mueve el recurso dos veces"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/fixtures/referencia_publica_pre_fix.json"
+                },
+                "region": {
+                  "startLine": 119
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "fsmLedgerGuard/v1": "9b0d48062ef8d195"
+          },
+          "properties": {
+            "clase": "MOVIMIENTO_SIN_IDEM",
+            "transiciones": [
+              "P2"
+            ],
+            "estados": [
+              "pagado",
+              "pagado"
+            ],
+            "contraejemplo": [],
+            "detalle": {}
+          }
+        },
+        {
+          "ruleId": "FSM008",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "P3 mueve dinero+69900 sin clave de idempotencia: el mismo evento aplicado dos veces mueve el recurso dos veces"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/fixtures/referencia_publica_pre_fix.json"
+                },
+                "region": {
+                  "startLine": 131
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "fsmLedgerGuard/v1": "2236cf221928fb77"
+          },
+          "properties": {
+            "clase": "MOVIMIENTO_SIN_IDEM",
+            "transiciones": [
+              "P3"
+            ],
+            "estados": [
+              "enviado",
+              "pagado"
+            ],
+            "contraejemplo": [],
+            "detalle": {}
+          }
+        },
+        {
+          "ruleId": "FSM008",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "P4 mueve dinero+69900 sin clave de idempotencia: el mismo evento aplicado dos veces mueve el recurso dos veces"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/fixtures/referencia_publica_pre_fix.json"
+                },
+                "region": {
+                  "startLine": 143
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "fsmLedgerGuard/v1": "a82855cab38c10ae"
+          },
+          "properties": {
+            "clase": "MOVIMIENTO_SIN_IDEM",
+            "transiciones": [
+              "P4"
+            ],
+            "estados": [
+              "devuelto",
+              "pagado"
+            ],
+            "contraejemplo": [],
+            "detalle": {}
+          }
+        },
+        {
+          "ruleId": "FSM008",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "P5 mueve dinero+69900 sin clave de idempotencia: el mismo evento aplicado dos veces mueve el recurso dos veces"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/fixtures/referencia_publica_pre_fix.json"
+                },
+                "region": {
+                  "startLine": 155
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "fsmLedgerGuard/v1": "59dafc9e7f2acf53"
+          },
+          "properties": {
+            "clase": "MOVIMIENTO_SIN_IDEM",
+            "transiciones": [
+              "P5"
+            ],
+            "estados": [
+              "cancelado",
+              "pagado"
+            ],
+            "contraejemplo": [],
+            "detalle": {}
+          }
+        },
+        {
+          "ruleId": "FSM008",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "R3 mueve dinero-69900 sin clave de idempotencia: el mismo evento aplicado dos veces mueve el recurso dos veces"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/fixtures/referencia_publica_pre_fix.json"
+                },
+                "region": {
+                  "startLine": 217
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "fsmLedgerGuard/v1": "2fb6fdb3c383c7d5"
+          },
+          "properties": {
+            "clase": "MOVIMIENTO_SIN_IDEM",
+            "transiciones": [
+              "R3"
+            ],
+            "estados": [
+              "enviado",
+              "devuelto"
+            ],
+            "contraejemplo": [],
+            "detalle": {}
+          }
+        },
+        {
+          "ruleId": "FSM010",
+          "ruleIndex": 3,
+          "level": "error",
+          "message": {
+            "text": "dinero llega a -69900 centavos en 'devuelto', por debajo del mínimo +0 (3 estados afectados)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/fixtures/referencia_publica_pre_fix.json"
+                },
+                "region": {
+                  "startLine": 217
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "fsmLedgerGuard/v1": "31aa089cef83a76f"
+          },
+          "properties": {
+            "clase": "SALDO_NEGATIVO",
+            "transiciones": [],
+            "estados": [
+              "devuelto",
+              "enviado",
+              "pagado"
+            ],
+            "contraejemplo": [
+              "E1",
+              "R3"
+            ],
+            "detalle": {
+              "recurso": "dinero",
+              "saldo": -69900,
+              "minimo": 0,
+              "unidad": "centavos",
+              "camino": [
+                "E1",
+                "R3"
+              ],
+              "estados_afectados": [
+                "devuelto",
+                "enviado",
+                "pagado"
+              ]
+            }
+          }
+        },
+        {
+          "ruleId": "FSM011",
+          "ruleIndex": 4,
+          "level": "error",
+          "message": {
+            "text": "dinero llega a +139800 centavos en 'pagado' y el máximo declarado es +69900 (3 estados afectados)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "tests/fixtures/referencia_publica_pre_fix.json"
+                },
+                "region": {
+                  "startLine": 119
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "fsmLedgerGuard/v1": "5ad51020c8d22e79"
+          },
+          "properties": {
+            "clase": "COTA_EXCEDIDA",
+            "transiciones": [],
+            "estados": [
+              "devuelto",
+              "enviado",
+              "pagado"
+            ],
+            "contraejemplo": [
+              "P1",
+              "P2"
+            ],
+            "detalle": {
+              "recurso": "dinero",
+              "saldo": 139800,
+              "maximo": 69900,
+              "unidad": "centavos",
+              "camino": [
+                "P1",
+                "P2"
+              ],
+              "estados_afectados": [
+                "devuelto",
+                "enviado",
+                "pagado"
+              ]
+            }
+          }
+        }
+      ],
+      "properties": {
+        "dominio": "ejemplo-publico/pedidos",
+        "huella_del_grafo": "5a60b2aa62d2f6f6abb48b6069db4e42a652dc22a3460341594dd50376fe2120"
+      }
+    }
+  ]
+}

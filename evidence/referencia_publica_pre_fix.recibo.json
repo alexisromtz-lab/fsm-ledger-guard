@@ -1,0 +1,95 @@
+{
+  "schema": "conservation/1",
+  "area": "fsm:ejemplo-publico/pedidos",
+  "instrumento": "fsm-ledger-guard",
+  "dominio": 12,
+  "unidad": "transiciones",
+  "cubetas": {
+    "limpias": 3,
+    "en_ciclo_fuga": 7,
+    "inalcanzable": 0,
+    "sin_guarda": 2,
+    "unidad_inconsistente": 0
+  },
+  "version": "0.1.4",
+  "digests": {
+    "entrada": "5a60b2aa62d2f6f6abb48b6069db4e42a652dc22a3460341594dd50376fe2120",
+    "salida": "fbd021a3cf036ee5717d6d36ab1ffcd6fa85ad3da3f1c0262f144166611d3d30"
+  },
+  "declarado": {
+    "conserva": true,
+    "rc": 0
+  },
+  "auditoria": {
+    "rc": 1,
+    "hallazgos": 13,
+    "reglas": [
+      "FSM001",
+      "FSM005",
+      "FSM008",
+      "FSM010",
+      "FSM011"
+    ],
+    "medido": true
+  },
+  "procedencia": {
+    "repo": "alexisromtz-lab/fsm-ledger-guard",
+    "ruta": "examples/ecommerce_referencia/pre_fix",
+    "verificable_publicamente": true,
+    "medido": true,
+    "commit": "huella:b2e03a7914c0",
+    "huella_fuentes": "sha256:b2e03a7914c0938af7b29039ce4faafef35bdf85ac316e5e943938423c22f407",
+    "generado_por": "examples/ecommerce_referencia/extraer.py",
+    "fuentes": [
+      {
+        "archivo": "src/panel.js",
+        "linea": 6,
+        "funcion": "cancelarPedido",
+        "evento": "cancelar",
+        "guarda": "estado = 'nuevo'",
+        "origenes": [
+          "nuevo"
+        ]
+      },
+      {
+        "archivo": "src/webhook.js",
+        "linea": 10,
+        "funcion": "marcarPagado",
+        "evento": "pagar",
+        "guarda": "sin guarda",
+        "origenes": [
+          "nuevo",
+          "pagado",
+          "enviado",
+          "devuelto",
+          "cancelado"
+        ]
+      },
+      {
+        "archivo": "src/webhook.js",
+        "linea": 15,
+        "funcion": "marcarEnviado",
+        "evento": "enviar",
+        "guarda": "sin guarda",
+        "origenes": [
+          "nuevo",
+          "pagado",
+          "enviado",
+          "devuelto",
+          "cancelado"
+        ]
+      },
+      {
+        "archivo": "src/webhook.js",
+        "linea": 22,
+        "funcion": "marcarDevuelto",
+        "evento": "reembolsar",
+        "guarda": "estado = 'enviado'",
+        "origenes": [
+          "enviado"
+        ]
+      }
+    ],
+    "nota": "Reduccion publica del patron, no un tercer sistema en produccion: este arbol es codigo de referencia y existe para que el lector rehaga la medicion sin pedir acceso a los dos repositorios privados. Ninguna arista esta declarada a mano: el origen de cada una lo lee `examples/ecommerce_referencia/extraer.py` de la guarda escrita en el codigo, y el destino, el delta y la clave de idempotencia, de `maquina.json`. Un escritor sin guarda se expande a una arista desde cada estado declarado, terminales incluidos. El fixture se regenera con `python3 examples/ecommerce_referencia/extraer.py --arbol <arbol> --salida <ruta> --check`."
+  }
+}
