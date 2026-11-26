@@ -1,0 +1,110 @@
+{
+  "schema": "fsm-ledger/1",
+  "dominio": "moon-and-rain/cuenta_pedidos",
+  "inicial": "pendiente_de_registro",
+  "procedencia": {
+    "repo": "alexisromtz-lab/letras-delespiritu",
+    "ruta": "moon-rain-worker",
+    "verificable_publicamente": false,
+    "commit": "d144256f",
+    "medido": true,
+    "nota": "El estado inicial `pendiente_de_registro` no es vocabulario del esquema: modela el instante en que el pedido ya se cobro en Shopify y todavia no existe fila en `cuenta_pedidos`. Sin el, el ingreso de dinero tendria que ser un lazo `procesando -> procesando` con delta, y un lazo con delta no es lo que hace el codigo: `pedidos.js:19` fija `total=excluded.total` (SET, no suma) y el UNIQUE(order_id,email) lo hace idempotente. Modelo del mismo worker despues de `src/shopify/estados.js`: la tabla `TRANSICIONES` declara que transicion es legal desde que origen y los tres escritores arman su guarda con `guardaDeOrigen()`. U1 (en camino -> procesando por un reintento de webhook) desaparece del grafo en vez de quedar guardada: el ON CONFLICT ya no reescribe `estado`. `refunds/create` cierra el pedido solo si el reembolso cubre el total (`reembolsoCubreTotal`, en centavos enteros): un reembolso parcial no es una arista y se registra en el log. 'entregado' sale de la maquina: se declara en `DECLARADO_SIN_ESCRITOR` porque Shopify no manda webhook de entrega. `dinero` se declara NO acumulativo y acotado al importe de un pedido (`maximo: 69900`, `saldo_inicial: 0`): lo que se sigue es cuanto del importe de un pedido esta en manos de la tienda, no un saldo de caja. `cuenta_pedidos.total` no es una columna de saldo que se pueda poner a cero --es el importe del pedido-- y el asiento real vive en Shopify; por eso la liberacion que declaran las aristas de reembolso y cancelacion es declarativa: el estado es la unica evidencia que el worker puede dejar, y el fixture no finge que mueva dinero. C1/C2 llevan `-69900` porque la maquina afirma el invariante del que carecia pre-fix: ningun pedido registrado se cierra reteniendo el importe. El handler de `orders/cancelled` lo deja dicho en el log cuando el pedido ya iba embarcado."
+  },
+  "recursos": {
+    "dinero": {
+      "unidad": "centavos",
+      "minimo": 0,
+      "maximo": 69900,
+      "saldo_inicial": 0,
+      "acumulativa": false
+    }
+  },
+  "estados": [
+    {
+      "nombre": "pendiente_de_registro",
+      "terminal": false
+    },
+    {
+      "nombre": "procesando",
+      "terminal": false
+    },
+    {
+      "nombre": "en camino",
+      "terminal": false
+    },
+    {
+      "nombre": "reembolsado",
+      "terminal": true
+    },
+    {
+      "nombre": "cancelado",
+      "terminal": true
+    }
+  ],
+  "transiciones": [
+    {
+      "id": "M1",
+      "de": "pendiente_de_registro",
+      "evento": "orders/create",
+      "a": "procesando",
+      "delta": {
+        "dinero": 69900
+      },
+      "atomico": true,
+      "idem_key": "order_id+email"
+    },
+    {
+      "id": "F1",
+      "de": "procesando",
+      "evento": "fulfillments/create",
+      "a": "en camino",
+      "delta": {},
+      "atomico": true,
+      "idem_key": "order_id+estado"
+    },
+    {
+      "id": "R1",
+      "de": "procesando",
+      "evento": "refunds/create",
+      "a": "reembolsado",
+      "delta": {
+        "dinero": -69900
+      },
+      "atomico": true,
+      "idem_key": "order_id+estado"
+    },
+    {
+      "id": "R2",
+      "de": "en camino",
+      "evento": "refunds/create",
+      "a": "reembolsado",
+      "delta": {
+        "dinero": -69900
+      },
+      "atomico": true,
+      "idem_key": "order_id+estado"
+    },
+    {
+      "id": "C1",
+      "de": "procesando",
+      "evento": "orders/cancelled",
+      "a": "cancelado",
+      "delta": {
+        "dinero": -69900
+      },
+      "atomico": true,
+      "idem_key": "order_id+estado"
+    },
+    {
+      "id": "C2",
+      "de": "en camino",
+      "evento": "orders/cancelled",
+      "a": "cancelado",
+      "delta": {
+        "dinero": -69900
+      },
+      "atomico": true,
+      "idem_key": "order_id+estado"
+    }
+  ]
+}

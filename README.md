@@ -113,6 +113,43 @@ $ fsm-ledger-guard scan tests/fixtures/studio_city_objetivo.json --exigir-medido
 RC 2
 ```
 
+## 2 bis. El segundo vertical: Moon & Rain (e-commerce, otro dominio)
+
+Dos fixtures más, y ninguno de los dos hizo falta una línea nueva del motor:
+[`moon_and_rain_pre_fix.json`](tests/fixtures/moon_and_rain_pre_fix.json) y
+[`moon_and_rain_post_fix.json`](tests/fixtures/moon_and_rain_post_fix.json) son
+el **mismo worker de tienda** (`moon-rain-worker`) en el HEAD `93f5bcdd` y en el
+parche que le siguió. Los dos viven en el mismo repositorio privado que Studio
+City, así que su `procedencia.verificable_publicamente` es `false`, igual que en
+los otros cuatro.
+
+| acto | commit | RC | qué dice |
+|---|---|---|---|
+| [`moon_and_rain_pre_fix.json`](tests/fixtures/moon_and_rain_pre_fix.json) | `93f5bcdd` | **1** · 3 hallazgos | el importe entra por `orders/create` y no hay ninguna arista que lo saque |
+| [`moon_and_rain_post_fix.json`](tests/fixtures/moon_and_rain_post_fix.json) | `d144256f` | **0** | guarda de origen, reembolso y cancelación: todo terminal cierra en saldo cero |
+
+**Antes.** Tres escritores de `cuenta_pedidos.estado` sin guarda de origen
+(`pedidos.js:18-19` reescribía `procesando` desde cualquier evento, `webhook.js:215`
+y `banca.js:31` escribían `en camino` con `WHERE order_id=?`), cero ocurrencias de
+`refunds` y de `orders/cancelled` en `src/`, y un estado `entregado` que sólo
+existía en el comentario de la migración. El auditor lo nombra sin saber que es
+una tienda: `FSM004` (`en camino` y `procesando` se alcanzan y no se abandonan, y
+no hay terminal dentro), `FSM006` (ninguna transición disminuye `dinero`) y
+`FSM002` (`entregado`, inalcanzable).
+
+**Después.** `src/shopify/estados.js` declara la máquina como dato y los tres
+escritores arman su guarda con `guardaDeOrigen()`. `refunds/create` cierra el
+pedido sólo si el reembolso cubre el total, comparando en centavos enteros: un
+reembolso parcial no mueve la máquina, se registra. **RC 0**, y la corrida usa
+las mismas reglas que Studio City: `test_fixtures.py` comprueba que `checks.py`
+no nombra ningún dominio.
+
+**Lo que este vertical añade al argumento.** El primer caso podía leerse como
+«un auditor de pagos». El segundo es un flujo de pedidos, devoluciones y
+cancelaciones —otro vocabulario, otra base de datos, otro equipo— y el veredicto
+lo produce el mismo conjunto de reglas. Eso es lo que se compra: no un chequeo de
+Mercado Pago, sino un invariante sobre el grafo.
+
 ## 3. Uso
 
 ```console
@@ -239,8 +276,8 @@ Cada resultado lleva `ruleId` (`FSM001`…), `level`, la línea del fixture,
 `partialFingerprints` estable entre corridas y, en `properties`, el
 `contraejemplo` completo. Los archivos de `evidence/` se validaron contra el
 esquema oficial `sarif-schema-2.1.0.json` con `jsonschema` (Draft-07): cero
-errores. `.github/workflows/verify.yml` audita los cuatro fixtures en cada push y
-exige `1 / 1 / 1 / 0`.
+errores. `.github/workflows/verify.yml` audita los seis fixtures en cada push y
+exige `1 / 1 / 1 / 0` para Studio City y `1 / 0` para Moon & Rain.
 
 Medición viva, 26-Nov-2026 @ `1c37c58`, corrida 45731712585: la pestaña
 Security de este repositorio publica **12 alertas** — `FSM001`×2 (el ciclo de
@@ -256,7 +293,7 @@ Como hook de pre-commit, el instrumento audita los documentos que terminen en
 ```yaml
 repos:
   - repo: https://github.com/alexisromtz-lab/fsm-ledger-guard
-    rev: v0.1.2
+    rev: v0.1.3
     hooks: [{ id: fsm-ledger-guard }]
 ```
 
@@ -265,6 +302,7 @@ repos:
 ```console
 python -m unittest discover -s tests -t tests -v
 python -m fsm_ledger_guard scan tests/fixtures/studio_city_pre_fix.json
+python -m fsm_ledger_guard scan tests/fixtures/moon_and_rain_pre_fix.json
 ```
 
 Los artefactos ya generados de los actos están en [`evidence/`](evidence).

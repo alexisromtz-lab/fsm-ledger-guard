@@ -63,8 +63,15 @@ jobs:
           fsm-ledger-guard scan tests/fixtures/studio_city_objetivo.json \
             --sarif out/studio_city_objetivo.sarif --recibo out/studio_city_objetivo.recibo.json
           objetivo=$?
-          echo "pre_fix=$pre post_fix=$post f7=$f7 objetivo=$objetivo"
-          test "$pre" = 1 && test "$post" = 1 && test "$f7" = 1 && test "$objetivo" = 0
+          fsm-ledger-guard scan tests/fixtures/moon_and_rain_pre_fix.json \
+            --sarif out/moon_and_rain_pre_fix.sarif --recibo out/moon_and_rain_pre_fix.recibo.json
+          tienda_pre=$?
+          fsm-ledger-guard scan tests/fixtures/moon_and_rain_post_fix.json \
+            --sarif out/moon_and_rain_post_fix.sarif --recibo out/moon_and_rain_post_fix.recibo.json
+          tienda_post=$?
+          echo "pre_fix=$pre post_fix=$post f7=$f7 objetivo=$objetivo tienda_pre=$tienda_pre tienda_post=$tienda_post"
+          test "$pre" = 1 && test "$post" = 1 && test "$f7" = 1 && test "$objetivo" = 0 \
+            && test "$tienda_pre" = 1 && test "$tienda_post" = 0
       # Una categoria por corrida: el Action rechaza varios runs bajo la misma.
       - name: Upload SARIF (pre_fix)
         if: always()
@@ -90,6 +97,18 @@ jobs:
         with:
           sarif_file: out/studio_city_objetivo.sarif
           category: fsm-ledger-guard/objetivo
+      - name: Upload SARIF (tienda pre_fix)
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: out/moon_and_rain_pre_fix.sarif
+          category: fsm-ledger-guard/tienda-pre_fix
+      - name: Upload SARIF (tienda post_fix)
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: out/moon_and_rain_post_fix.sarif
+          category: fsm-ledger-guard/tienda-post_fix
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -1,0 +1,41 @@
+{
+  "schema": "conservation/1",
+  "area": "fsm:moon-and-rain/cuenta_pedidos",
+  "instrumento": "fsm-ledger-guard",
+  "dominio": 4,
+  "unidad": "transiciones",
+  "cubetas": {
+    "limpias": 4,
+    "en_ciclo_fuga": 0,
+    "inalcanzable": 0,
+    "sin_guarda": 0,
+    "unidad_inconsistente": 0
+  },
+  "version": "0.1.3",
+  "digests": {
+    "entrada": "df6745576bda761740b15a2f479393e8a802c9eaaa10f037c7838614f7c7ffc2",
+    "salida": "91959883139f72cd6e139dc7120dfefa4cfcc19024448c90e5a191cc88b9c21a"
+  },
+  "declarado": {
+    "conserva": true,
+    "rc": 0
+  },
+  "auditoria": {
+    "rc": 1,
+    "hallazgos": 3,
+    "reglas": [
+      "FSM002",
+      "FSM004",
+      "FSM006"
+    ],
+    "medido": true
+  },
+  "procedencia": {
+    "repo": "alexisromtz-lab/letras-delespiritu",
+    "ruta": "moon-rain-worker",
+    "verificable_publicamente": false,
+    "commit": "93f5bcdd",
+    "medido": true,
+    "nota": "El estado inicial `pendiente_de_registro` no es vocabulario del esquema: modela el instante en que el pedido ya se cobro en Shopify y todavia no existe fila en `cuenta_pedidos`. Sin el, el ingreso de dinero tendria que ser un lazo `procesando -> procesando` con delta, y un lazo con delta no es lo que hace el codigo: `pedidos.js:19` fija `total=excluded.total` (SET, no suma) y el UNIQUE(order_id,email) lo hace idempotente. Escrituras reales de `cuenta_pedidos.estado` medidas en lectura pura: `src/shopify/pedidos.js:18-19` (inserta 'procesando', y su ON CONFLICT DO UPDATE vuelve a escribir 'procesando' desde cualquier origen: U1), `src/shopify/webhook.js:215` y `src/shopify/banca.js:31` ('en camino', con `WHERE order_id=?` y sin guarda de origen). `refunds/create` y `orders/cancelled` NO tienen handler (0 ocurrencias de 'refunds' y de 'orders/cancelled' en src): por eso el dinero entra por M1 y no tiene ninguna arista de salida. 'entregado' figura en el comentario del esquema (migrations/0009_mi_cuenta.sql:15) y no tiene ningun escritor. `dinero` se declara NO acumulativo y acotado al importe de un pedido (`maximo: 69900`, `saldo_inicial: 0`): lo que se sigue es cuanto del importe de un pedido esta en manos de la tienda, no un saldo de caja. `cuenta_pedidos.total` no es una columna de saldo que se pueda poner a cero --es el importe del pedido-- y el asiento real vive en Shopify; por eso la liberacion que declaran las aristas de reembolso y cancelacion es declarativa: el estado es la unica evidencia que el worker puede dejar, y el fixture no finge que mueva dinero."
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "fsm-ledger-guard",
+          "version": "0.1.3",
+          "informationUri": "https://github.com/alexisromtz-lab/fsm-ledger-guard",
+          "rules": []
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true,
+          "properties": {
+            "rc": 0,
+            "cobertura": {
+              "alcanzabilidad": "MEDIDO",
+              "retencion:dinero": "MEDIDO: todo saldo positivo tiene salida",
+              "guardas": "MEDIDO",
+              "conservacion": "MEDIDO: el espacio de saldos se cierra"
+            }
+          }
+        }
+      ],
+      "results": [],
+      "properties": {
+        "dominio": "moon-and-rain/cuenta_pedidos",
+        "huella_del_grafo": "edc56312a885938d7301bb8158821f3778bb4bb751c00ec28e49b5acec8e54c9"
+      }
+    }
+  ]
+}

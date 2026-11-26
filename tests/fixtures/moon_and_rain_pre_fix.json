@@ -1,0 +1,80 @@
+{
+  "schema": "fsm-ledger/1",
+  "dominio": "moon-and-rain/cuenta_pedidos",
+  "inicial": "pendiente_de_registro",
+  "procedencia": {
+    "repo": "alexisromtz-lab/letras-delespiritu",
+    "ruta": "moon-rain-worker",
+    "verificable_publicamente": false,
+    "commit": "93f5bcdd",
+    "medido": true,
+    "nota": "El estado inicial `pendiente_de_registro` no es vocabulario del esquema: modela el instante en que el pedido ya se cobro en Shopify y todavia no existe fila en `cuenta_pedidos`. Sin el, el ingreso de dinero tendria que ser un lazo `procesando -> procesando` con delta, y un lazo con delta no es lo que hace el codigo: `pedidos.js:19` fija `total=excluded.total` (SET, no suma) y el UNIQUE(order_id,email) lo hace idempotente. Escrituras reales de `cuenta_pedidos.estado` medidas en lectura pura: `src/shopify/pedidos.js:18-19` (inserta 'procesando', y su ON CONFLICT DO UPDATE vuelve a escribir 'procesando' desde cualquier origen: U1), `src/shopify/webhook.js:215` y `src/shopify/banca.js:31` ('en camino', con `WHERE order_id=?` y sin guarda de origen). `refunds/create` y `orders/cancelled` NO tienen handler (0 ocurrencias de 'refunds' y de 'orders/cancelled' en src): por eso el dinero entra por M1 y no tiene ninguna arista de salida. 'entregado' figura en el comentario del esquema (migrations/0009_mi_cuenta.sql:15) y no tiene ningun escritor. `dinero` se declara NO acumulativo y acotado al importe de un pedido (`maximo: 69900`, `saldo_inicial: 0`): lo que se sigue es cuanto del importe de un pedido esta en manos de la tienda, no un saldo de caja. `cuenta_pedidos.total` no es una columna de saldo que se pueda poner a cero --es el importe del pedido-- y el asiento real vive en Shopify; por eso la liberacion que declaran las aristas de reembolso y cancelacion es declarativa: el estado es la unica evidencia que el worker puede dejar, y el fixture no finge que mueva dinero."
+  },
+  "recursos": {
+    "dinero": {
+      "unidad": "centavos",
+      "minimo": 0,
+      "maximo": 69900,
+      "saldo_inicial": 0,
+      "acumulativa": false
+    }
+  },
+  "estados": [
+    {
+      "nombre": "pendiente_de_registro",
+      "terminal": false
+    },
+    {
+      "nombre": "procesando",
+      "terminal": false
+    },
+    {
+      "nombre": "en camino",
+      "terminal": false
+    },
+    {
+      "nombre": "entregado",
+      "terminal": false
+    }
+  ],
+  "transiciones": [
+    {
+      "id": "M1",
+      "de": "pendiente_de_registro",
+      "evento": "orders/create",
+      "a": "procesando",
+      "delta": {
+        "dinero": 69900
+      },
+      "atomico": true,
+      "idem_key": "order_id+email"
+    },
+    {
+      "id": "F1",
+      "de": "procesando",
+      "evento": "fulfillments/create",
+      "a": "en camino",
+      "delta": {},
+      "atomico": false,
+      "idem_key": null
+    },
+    {
+      "id": "F2",
+      "de": "en camino",
+      "evento": "fulfillments/create",
+      "a": "en camino",
+      "delta": {},
+      "atomico": false,
+      "idem_key": null
+    },
+    {
+      "id": "U1",
+      "de": "en camino",
+      "evento": "orders/create",
+      "a": "procesando",
+      "delta": {},
+      "atomico": false,
+      "idem_key": null
+    }
+  ]
+}
