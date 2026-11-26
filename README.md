@@ -2,6 +2,7 @@
 
 [![verify](https://github.com/alexisromtz-lab/fsm-ledger-guard/actions/workflows/verify.yml/badge.svg)](https://github.com/alexisromtz-lab/fsm-ledger-guard/actions/workflows/verify.yml)
 [![Code Scanning](https://img.shields.io/badge/Code%20Scanning-12%20alertas%20en%20vivo-blue)](https://github.com/alexisromtz-lab/fsm-ledger-guard/security/code-scanning)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24546808.svg)](https://doi.org/10.5281/zenodo.24546808)
 
 Auditoría **algebraica** de máquinas de estados financieras. Certifica, antes de
 desplegar, que un grafo de pagos, reservas o pedidos **no puede crear ni perder
@@ -267,6 +268,27 @@ python -m fsm_ledger_guard scan tests/fixtures/studio_city_pre_fix.json
 ```
 
 Los artefactos ya generados de los actos están en [`evidence/`](evidence).
+
+## 9. Cómo citar
+
+El paquete depositado es **v0.1.2** con su evidencia. Se cita por DOI, no por el repositorio: el
+repositorio cambia y el depósito no.
+
+> Román Martínez, José Alexis (2026). *alexisromtz-lab/fsm-ledger-guard: v0.1.2 — de ocho hallazgos
+> a uno en una máquina de estados de pagos* [Software]. Zenodo.
+> <https://doi.org/10.5281/zenodo.24546808>
+
+```bibtex
+@software{fsm_ledger_guard_012,
+  author    = {Román Martínez, José Alexis},
+  title     = {alexisromtz-lab/fsm-ledger-guard: v0.1.2 --- de ocho hallazgos a uno
+               en una máquina de estados de pagos},
+  year      = 2026,
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.24546808},
+  url       = {https://doi.org/10.5281/zenodo.24546808}
+}
+```
 
 ## Licencia
 
