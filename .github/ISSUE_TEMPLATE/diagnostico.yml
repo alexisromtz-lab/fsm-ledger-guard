@@ -1,0 +1,36 @@
+name: Diagnóstico 0 USD
+description: Pega la URL de tu repositorio y te decimos qué grado de libertad tiene tu máquina de estados. Sin instalar nada.
+title: "[Diagnóstico] "
+labels: ["diagnostico"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Este diagnóstico lo corremos de nuestro lado: **no tienes que instalar ni ejecutar nada**.
+        Solo pega la URL pública del repositorio y, si lo sabes, dónde vive el grafo.
+
+        La respuesta llega como comentario en este mismo issue, en 48 horas: el hallazgo con su
+        locus, su contraejemplo y el comando que lo reproduce.
+  - type: input
+    id: repositorio
+    attributes:
+      label: URL pública del repositorio
+      placeholder: https://github.com/usuario/repositorio
+    validations:
+      required: true
+  - type: input
+    id: ruta
+    attributes:
+      label: Ruta del grafo o del documento de estados
+      description: Opcional. Si no la sabes, la buscamos nosotros.
+      placeholder: docs/flujo-reservas.json
+    validations:
+      required: false
+  - type: textarea
+    id: contexto
+    attributes:
+      label: Qué te preocupa
+      description: Opcional, pero ayuda a ordenar los hallazgos.
+      placeholder: "Que un reembolso doble deje el saldo negativo."
+    validations:
+      required: false

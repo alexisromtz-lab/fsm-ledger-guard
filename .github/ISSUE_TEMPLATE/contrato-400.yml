@@ -1,0 +1,49 @@
+name: Contrato 400 USD
+description: Auditoría de conservación y retención sobre tu máquina de estados. Precio fijo 400 USD.
+title: "[Contrato 400] "
+labels: ["contrato-400"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Abrir este issue es el acto: no hace falta correo ni tarjeta para empezar. Se responde aquí,
+        en el hilo y en 48 horas, con el alcance confirmado y el medio de pago.
+
+        **Qué se entrega por 400 USD**: el recibo `conservation/1` y cada hallazgo con su locus, su
+        contraejemplo y el comando que lo reproduce. El PR correctivo no está incluido; se cotiza
+        aparte. Si el escaneo no encuentra nada, se entrega igual el recibo que lo demuestra.
+  - type: input
+    id: repositorio
+    attributes:
+      label: Repositorio o ruta del grafo
+      description: URL pública del repositorio, o dónde vive el documento `fsm-ledger/1` que quieres auditar.
+      placeholder: https://github.com/usuario/repositorio
+    validations:
+      required: true
+  - type: dropdown
+    id: dominio
+    attributes:
+      label: Dominio del flujo
+      options:
+        - Pagos
+        - Reservas
+        - Pedidos
+        - Suscripciones
+        - Otro
+    validations:
+      required: true
+  - type: textarea
+    id: alcance
+    attributes:
+      label: Qué flujo hay que auditar
+      description: Nombra los estados y di qué significa conservar el dinero en tu caso.
+      placeholder: "Estados: pendiente, pagada, reembolsada... Conservar significa que ningún camino devuelve más de lo cobrado."
+    validations:
+      required: true
+  - type: checkboxes
+    id: acuerdo
+    attributes:
+      label: Acuerdo
+      options:
+        - label: Acepto el precio fijo de 400 USD y que el alcance es la auditoría; el PR correctivo se cotiza aparte.
+          required: true

@@ -37,6 +37,22 @@ declaraba un repositorio que no resuelve, y como la huella del grafo cubre el
 documento completo, corregir la cita cambió las huellas publicadas. La cita se
 mide antes de escribirse; si no resuelve, no se publica.
 
+## Contratar
+
+El repositorio es el instrumento; la auditoría sobre **tu** flujo es el servicio. Dos puertas, las
+dos de un clic, y ninguna te pide instalar nada:
+
+- **Contrato 400 USD** — [abrir el contrato](https://github.com/alexisromtz-lab/fsm-ledger-guard/issues/new?template=contrato-400.yml) ·
+  auditoría completa de conservación y retención sobre tu máquina de estados, precio fijo y alcance
+  cerrado. Entrega: el recibo `conservation/1` y cada hallazgo con su locus, su contraejemplo y el
+  comando que lo reproduce. El PR correctivo **no** está incluido: se cotiza aparte.
+- **Diagnóstico 0 USD** — [pedir el diagnóstico](https://github.com/alexisromtz-lab/fsm-ledger-guard/issues/new?template=diagnostico.yml) ·
+  pega la URL pública de tu repositorio y corremos el escaneo de nuestro lado; te devolvemos en el
+  issue qué grado de libertad tiene tu grafo y qué transición lo abre.
+
+La regla no cambia por pagar: un hallazgo que no se reproduce con el fixture del repositorio no se
+entrega.
+
 ## 1. Qué se demuestra, no qué se opina
 
 Una máquina de estados es $(S, \Sigma, \delta, s_0, F)$ y cada transición mueve
